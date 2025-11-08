@@ -1,61 +1,140 @@
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Objects;
+
 public class Ocupacion {
 
-    private Habitaciones habitacion;
+    private int id;
+    private static int contador = 1;
+    private Habitacion habitacion;
     private Pasajero pasajero;
-    //private Checks checkIn;
-    private double precio;
-    private int noches;
+    private Reserva reserva;
+    private LocalDateTime fechaCheckIn;
+    private LocalDateTime fechaCheckOut;
+    private double montoPagado;
+    private ArrayList<Consumo> consumos;
 
-    public Ocupacion(Habitaciones habitacion, Pasajero pasajero, , double precio, int noches) {
+    public Ocupacion(Habitacion habitacion, Pasajero pasajero, Reserva reserva) {
+        this.id = contador++;
         this.habitacion = habitacion;
         this.pasajero = pasajero;
-        //this.checkIn = checkIn;
-        this.precio = precio;
-        this.noches = noches;
+        this.reserva = reserva;
+        this.fechaCheckIn = LocalDateTime.now();
+        this.fechaCheckOut = null;
+        this.montoPagado = 0;
+        this.consumos = new ArrayList<>();
     }
 
-    public Habitaciones getHabitacion(){
+    public int getId() {
+        return id;
+    }
+
+    public Habitacion getHabitacion() {
         return habitacion;
-    }
-
-    public void setHabitacion(Habitaciones habitacion) {
-        this.habitacion = habitacion;
     }
 
     public Pasajero getPasajero() {
         return pasajero;
     }
 
+    public Reserva getReserva() {
+        return reserva;
+    }
+
+    public LocalDateTime getFechaCheckIn() {
+        return fechaCheckIn;
+    }
+
+    public LocalDateTime getFechaCheckOut() {
+        return fechaCheckOut;
+    }
+
+    public double getMontoPagado() {
+        return montoPagado;
+    }
+
+    public ArrayList<Consumo> getConsumos() {
+        return new ArrayList<>(consumos);
+    }
+
+
+    public void setHabitacion(Habitacion habitacion) {
+        this.habitacion = habitacion;
+    }
+
     public void setPasajero(Pasajero pasajero) {
         this.pasajero = pasajero;
     }
 
-    public double getPrecio() {
-        return precio;
+    public void setReserva(Reserva reserva) {
+        this.reserva = reserva;
     }
 
-    public void setPrecio(double precio) {
-        this.precio = precio;
+    public void setFechaCheckIn(LocalDateTime fechaCheckIn) {
+        this.fechaCheckIn = fechaCheckIn;
     }
 
-    public int getNoches() {
-        return noches;
+    public void setFechaCheckOut(LocalDateTime fechaCheckOut) {
+        this.fechaCheckOut = fechaCheckOut;
     }
 
-    public void setNoches(int noches) {
-        this.noches = noches;
+    public void setMontoPagado(double montoPagado) {
+        this.montoPagado = montoPagado;
+    }
+
+    public void agregarConsumos(Consumo consumo) {
+        if(fechaCheckOut != null){
+            throw new IllegalArgumentException("Ocupacion finalizada, no es posible agregar consumos");
+        }
+        consumos.add(consumo);
+    }
+
+    public double calcularTotal(int noches){
+        double totalHabitacion = habitacion.calcularPrecio(noches);
+        double totalConsumo = 0;
+        for(Consumo c : consumos){
+            totalConsumo += c.getMonto();
+        }
+        return totalConsumo + totalHabitacion;
+    }
+
+    public void finalizarOcupacion(){
+        if(fechaCheckOut != null){
+            throw new IllegalArgumentException("Check out no valido, ya fue realizado");
+        }
+        this.fechaCheckOut = LocalDateTime.now();
+
+        // faltan acciones con pasajero y actualizar la reserva
+    }
+
+    public boolean verificarActiva(){
+        return fechaCheckOut == null;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Ocupacion ocupacion = (Ocupacion) o;
+        return id == ocupacion.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
     }
 
     @Override
     public String toString() {
         return "Ocupacion{" +
-                "habitacion=" + habitacion +
+                "id=" + id +
+                ", habitacion=" + habitacion +
                 ", pasajero=" + pasajero +
-                ", precio=" + precio +
-                ", noches=" + noches +
+                ", reserva=" + reserva +
+                ", fechaCheckIn=" + fechaCheckIn +
+                ", fechaCheckOut=" + fechaCheckOut +
+                ", montoPagado=" + montoPagado +
+                ", consumos=" + consumos +
                 '}';
     }
-
-
-
 }
