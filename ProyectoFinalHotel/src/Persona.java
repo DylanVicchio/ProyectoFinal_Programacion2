@@ -2,6 +2,7 @@ import java.util.Objects;
 
 public abstract class Persona {
 
+    private int id;
     private String nombre;
     private String apellido;
     private int numeroCell;
@@ -9,13 +10,22 @@ public abstract class Persona {
     private int direccion;
     private String mail;
 
-    public Persona(String nombre, String apellido, int numeroCell, int dni, int direccion, String mail) {
+    public Persona(int id, String nombre, String apellido, int numeroCell, int dni, int direccion, String mail) {
+        this.id = id;
         this.nombre = nombre;
         this.apellido = apellido;
         this.numeroCell = numeroCell;
         this.dni = dni;
         this.direccion = direccion;
         this.mail = mail;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getNombre() {
@@ -68,23 +78,26 @@ public abstract class Persona {
 
     @Override
     public String toString() {
-        return "nombre='" + nombre + '\'' +
+        return "Persona{" +
+                "id=" + id +
+                ", nombre='" + nombre + '\'' +
                 ", apellido='" + apellido + '\'' +
                 ", numeroCell=" + numeroCell +
                 ", dni=" + dni +
                 ", direccion=" + direccion +
-                ", mail='" + mail;
+                ", mail='" + mail + '\'' +
+                '}';
     }
 
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         Persona persona = (Persona) o;
-        return dni == persona.dni;
+        return id == persona.id && dni == persona.dni;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(dni);
+        return Objects.hash(id, dni);
     }
 }
