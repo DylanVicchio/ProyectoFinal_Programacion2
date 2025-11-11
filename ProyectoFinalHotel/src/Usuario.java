@@ -6,8 +6,8 @@ public abstract class Usuario extends Persona {
     private TipoUsuario tipoUsuario;
     private boolean activo;
 
-    public Usuario(int id, String nombre, String apellido, int numeroCell, int dni, int direccion, String mail, String username, String password, TipoUsuario tipoUsuario, boolean activo) {
-        super(id, nombre, apellido, numeroCell, dni, direccion, mail);
+    public Usuario(String nombre, String apellido, int numeroCell, int dni, int direccion, String mail, String username, String password, TipoUsuario tipoUsuario, boolean activo) {
+        super(nombre, apellido, numeroCell, dni, direccion, mail);
         this.username = username;
         this.password = password;
         this.tipoUsuario = tipoUsuario;

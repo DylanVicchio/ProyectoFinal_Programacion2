@@ -3,6 +3,7 @@ import java.util.Objects;
 public abstract class Persona {
 
     private int id;
+    private static int contador = 0;
     private String nombre;
     private String apellido;
     private int numeroCell;
@@ -10,8 +11,9 @@ public abstract class Persona {
     private int direccion;
     private String mail;
 
-    public Persona(int id, String nombre, String apellido, int numeroCell, int dni, int direccion, String mail) {
-        this.id = id;
+    public Persona(String nombre, String apellido, int numeroCell, int dni, int direccion, String mail) {
+        contador++;
+        this.id = contador;
         this.nombre = nombre;
         this.apellido = apellido;
         this.numeroCell = numeroCell;

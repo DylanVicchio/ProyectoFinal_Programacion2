@@ -7,8 +7,8 @@ public class Pasajero extends Persona {
     private static int estadias = 0;
     private HashMap<Integer, Ocupacion> historialEstadia = new HashMap<>();
 
-    public Pasajero(int id, String nombre, String apellido, int numeroCell, int dni, int direccion, String mail, String origen, String domicilioOrigen, Ocupacion ocupacion) {
-        super(id, nombre, apellido, numeroCell, dni, direccion, mail);
+    public Pasajero(String nombre, String apellido, int numeroCell, int dni, int direccion, String mail, String origen, String domicilioOrigen, Ocupacion ocupacion) {
+        super(nombre, apellido, numeroCell, dni, direccion, mail);
         this.origen = origen;
         this.domicilioOrigen = domicilioOrigen;
         estadias++;
