@@ -128,13 +128,13 @@ public class Ocupacion {
     public String toString() {
         return "Ocupacion{" +
                 "id=" + id +
-                ", habitacion=" + habitacion +
-                ", pasajero=" + pasajero +
-                ", reserva=" + reserva +
-                ", fechaCheckIn=" + fechaCheckIn +
-                ", fechaCheckOut=" + fechaCheckOut +
+                ", habitacion=" + habitacion.toString() +
+                ", pasajero=" + pasajero.toString() +
+                ", reserva=" + reserva.toString() +
+                ", fechaCheckIn=" + fechaCheckIn.toString() +
+                ", fechaCheckOut=" + fechaCheckOut.toString() +
                 ", montoPagado=" + montoPagado +
-                ", consumos=" + consumos +
+                ", consumos=" + consumos.toString() +
                 '}';
     }
 }
