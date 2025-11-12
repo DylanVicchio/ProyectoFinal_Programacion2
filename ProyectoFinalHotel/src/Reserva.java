@@ -1,24 +1,22 @@
 import java.time.Duration;
-import java.time.LocalDateTime;
-import java.util.Scanner;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 
 public class Reserva {
 
-    Scanner sc = new Scanner(System.in);
 
-    private int id;
+    private final int id;
     private static int contador = 1;
-    private LocalDateTime diaReserva;
-    private LocalDateTime diaEntrada;
-    private LocalDateTime diaSalida;
+    private LocalDate diaReserva;
+    private LocalDate diaEntrada;
+    private LocalDate diaSalida;
     private Habitacion habitacionReservada;
     private EstadoReserva estado;
     private double montoTotal;
-    private Duration duration = Duration.between(this.diaEntrada, this.diaSalida);
 
 
-    public Reserva(LocalDateTime diaEntrada, LocalDateTime diaSalida, Habitacion habitacion) {
-        this.diaReserva = LocalDateTime.now();
+    public Reserva(LocalDate diaEntrada, LocalDate diaSalida, Habitacion habitacion) {
+        this.diaReserva = LocalDate.now();
         this.id = contador;
         contador++;
         this.habitacionReservada = habitacion;
@@ -28,23 +26,23 @@ public class Reserva {
         this.montoTotal = habitacionReservada.calcularPrecio((int) duration.toDays());
     }
 
-    public LocalDateTime getDiaReserva() {
+    public LocalDate getDiaReserva() {
         return diaReserva;
     }
 
-    public LocalDateTime getDiaEntrada() {
+    public LocalDate getDiaEntrada() {
         return diaEntrada;
     }
 
-    public void setDiaEntrada(LocalDateTime diaEntrada) {
+    public void setDiaEntrada(LocalDate diaEntrada) {
         this.diaEntrada = diaEntrada;
     }
 
-    public LocalDateTime getDiaSalida() {
+    public LocalDate getDiaSalida() {
         return diaSalida;
     }
 
-    public void setDiaSalida(LocalDateTime diaSalida) {
+    public void setDiaSalida(LocalDate diaSalida) {
         this.diaSalida = diaSalida;
     }
 
@@ -60,13 +58,24 @@ public class Reserva {
         return montoTotal;
     }
 
-    public void calcularNuevoMonto() {
-        this.montoTotal = habitacionReservada.calcularPrecio((int) duration.toDays());
+    public long calcularNoches() {
+        long noches = ChronoUnit.DAYS.between(this.diaEntrada, this.diaSalida);
+        if (noches <= 0) {
+            return 1;
+        }else {
+            return noches;
+        }
     }
+
+    public void calcularNuevoMonto() {
+        this.montoTotal = habitacionReservada.calcularPrecio((int) calcularNoches());
+    }
+
+
 
     public EstadoReserva verificarEstadoReserva(){
 
-        if (LocalDateTime.now().isBefore(this.diaEntrada) != false || this.estado == EstadoReserva.CONFIRMADA){
+        if (LocalDate.now().isBefore(this.diaEntrada) || this.estado == EstadoReserva.CONFIRMADA){
 
             return this.estado;
 
@@ -79,50 +88,31 @@ public class Reserva {
 
     }
 
-    public String confirmarReserva(){
+    public boolean confirmarReserva(){
 
-        if (LocalDateTime.now().isAfter(diaEntrada) != true){
+        if (!LocalDate.now().isAfter(diaEntrada)){
             this.estado = EstadoReserva.CANCELADA;
-            return "la reserva expiro \n";
+            return false;
         }
 
         this.estado = EstadoReserva.CONFIRMADA;
-        return "reserva confirmada \n";
+        return true;
 
         //confirma que el check-in de la reserva se haga dentro del tiempo acordado
     }
 
     public void cancelarReserva () {
 
-        int s;
-        System.out.println("esta seguro que desea cancelar la reserva? 1-si, 2-no \n");
-        s = sc.nextInt();
-
-        if (s < 1 || s > 2){
-            throw new IllegalArgumentException("numero ingresado no valido");
-        }
-
-        if ( s == 1){
-            this.diaEntrada = null;
-            this.diaSalida = null;
-            this.diaReserva = null;
-            this.estado = EstadoReserva.CANCELADA;
-
-            System.out.println("Se cancelo la reserva exitosamente \n");
-        }
-
-        if (s == 2){
-            System.out.println("cancelacion no realisada \n");
-        }
-
-        //libera el espacio de la reserva en caso de cancelarla
+        this.diaEntrada = null;
+        this.diaSalida = null;
+        this.diaReserva = null;
+        this.estado = EstadoReserva.CANCELADA;
 
     }
 
     public EstadoReserva finalizarReserva (){
 
         if (this.estado == EstadoReserva.CONFIRMADA){
-
             this.estado = EstadoReserva.COMPLETADA;
             return this.estado;
         }
