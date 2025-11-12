@@ -181,29 +181,6 @@ public class Ocupacion implements Guardable {
     }
 
     @Override
-    public void guardarEnArchivo() {
-        JSONUtiles.escribirArchivo("Ocupacion" + id + ".json", toJSON());
-    }
-
-    @Override
-    public void cargarDesdeArchivo() {
-        JSONObject array = JSONUtiles.leerArchivo("ocupaciones/" + id + ".json");
-        this.fechaCheckIn = LocalDateTime.parse(array.getString("fechaCheckIn"));
-
-       if(array.has("fechaCheckOut")){
-           this.fechaCheckOut = LocalDateTime.parse(array.getString("fechaCheckOut"));
-       }
-
-        this.montoPagado = array.getDouble("montoPagado");
-
-        this.consumos.clear();
-        JSONArray consumosArray = array.getJSONArray("consumos");
-        for (int i = 0; i < consumosArray.length(); i++) {
-            consumos.add(new Consumo(consumosArray.getJSONObject(i)));
-        }
-    }
-
-    @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         Ocupacion ocupacion = (Ocupacion) o;
