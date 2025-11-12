@@ -1,11 +1,12 @@
+import Interfaz.Guardable;
 import org.json.JSONObject;
-
+import Enum.EstadoReserva;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 
-public class Reserva implements Guardable{
+public class Reserva implements Guardable {
 
 
     private final int id;
@@ -168,21 +169,6 @@ public class Reserva implements Guardable{
     }
 
     @Override
-    public void guardarEnArchivo() {
-        // Usando la convención de otras clases
-        JSONUtiles.escribirArchivo("Reserva" + id + ".json", toJSON());
-    }
-
-    public void cargarDesdeArchivo() {
-        JSONObject object = JSONUtiles.leerArchivo("Reserva" + id + ".json");
-        this.diaEntrada = LocalDate.parse(object.getString("diaEntrada"));
-        this.diaSalida = LocalDate.parse(object.getString("diaSalida"));
-        this.diaCreacion = LocalDateTime.parse(object.getString("fechaCreacion"));
-        this.estado = EstadoReserva.valueOf(object.getString("estado"));
-        this.montoTotal = object.getDouble("montoTotal");
-    }
-
-    @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         Reserva reserva = (Reserva) o;
@@ -208,4 +194,3 @@ public class Reserva implements Guardable{
     }
 }
 
-}

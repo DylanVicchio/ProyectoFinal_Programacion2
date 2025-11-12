@@ -1,3 +1,5 @@
+import Enum.TipoUsuario;
+
 public class Recepcionista extends Usuario {
 
     public Recepcionista(String nombre, String apellido, int numeroCell, int dni,

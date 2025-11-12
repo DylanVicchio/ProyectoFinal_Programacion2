@@ -1,3 +1,5 @@
+package Exception;
+
 public class DatosInvalidosException extends Exception {
 
     public DatosInvalidosException(String mensaje) {
@@ -8,6 +10,6 @@ public class DatosInvalidosException extends Exception {
 
     @Override
     public String getMessage() {
-        return super.getMessage();
+        return "Datos incorrectos: " + super.getMessage();
     }
 }

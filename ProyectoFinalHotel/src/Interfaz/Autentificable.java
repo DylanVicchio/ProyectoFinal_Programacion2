@@ -1,3 +1,5 @@
+package Interfaz;
+
 public interface Autentificable {
 
     // autentica un usuario con username y password

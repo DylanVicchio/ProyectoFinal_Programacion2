@@ -1,9 +1,10 @@
+import Interfaz.Guardable;
 import org.json.JSONObject;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-public class Consumo implements Guardable{
+public class Consumo implements Guardable {
     private final int id;
     private static int contador = 1;
     private String descripcion;
@@ -70,17 +71,6 @@ public class Consumo implements Guardable{
         object.put("monto", this.monto);
         object.put("fecha", this.fecha);
         return object;
-    }
-
-    public void guardarEnArchivo(){
-        JSONUtiles.escribirArchivo("Consumo" + id + ".json", toJSON());
-    }
-
-    public void cargarDesdeArchivo(){
-        JSONObject object = JSONUtiles.leerArchivo("Consumo" + id + ".json");
-        this.descripcion = object.getString("descripcion");
-        this.monto = object.getDouble("monto");
-        this.fecha = LocalDateTime.parse(object.getString("fecha"));
     }
 
     @Override

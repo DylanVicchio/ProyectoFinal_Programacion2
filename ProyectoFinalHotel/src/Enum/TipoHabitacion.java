@@ -1,3 +1,5 @@
+package Enum;
+
 public enum TipoHabitacion {
 
     INDIVIDUAL("Individual", 1, 1000),

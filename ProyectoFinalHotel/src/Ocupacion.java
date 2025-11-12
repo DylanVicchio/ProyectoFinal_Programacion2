@@ -1,13 +1,12 @@
+import Interfaz.Guardable;
 import org.json.JSONArray;
 import org.json.JSONObject;
-
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Objects;
-
-public class Ocupacion implements Guardable{
+import Enum.EstadoHabitacion;
+public class Ocupacion implements Guardable {
 
     private int id;
     private static int contador = 1;

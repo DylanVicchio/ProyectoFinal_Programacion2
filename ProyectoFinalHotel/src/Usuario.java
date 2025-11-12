@@ -1,5 +1,5 @@
 import java.util.Objects;
-
+import Enum.TipoUsuario;
 public abstract class Usuario extends Persona {
     private String username;
     private String password;

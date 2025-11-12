@@ -1,10 +1,10 @@
+import Interfaz.Guardable;
 import org.json.JSONObject;
-
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Objects;
-
-public class Habitacion implements Guardable{
+import Enum.EstadoHabitacion;
+import Enum.TipoHabitacion;
+public class Habitacion implements Guardable {
 
     private final int id;
     private static int contador = 1;
@@ -142,23 +142,6 @@ public class Habitacion implements Guardable{
         object.put("estadoHabitacion", this.estadoHabitacion.name());
         object.put("motivoNoDisponible", this.motivoNoDisponible);
         return object;
-    }
-
-    @Override
-    public void guardarEnArchivo() {
-        JSONUtiles.escribirArchivo("Habitacion" + id + ".json", toJSON());
-    }
-
-    @Override
-    public void cargarDesdeArchivo() {
-        JSONObject json = JSONUtiles.leerArchivo("Habitacion" + id + ".json");
-        this.numero = json.getInt("numero");
-        this.tipoHabitacion = TipoHabitacion.valueOf(json.getString("tipo"));
-        this.piso = json.getInt("piso");
-        this.capacidad = json.getInt("capacidad");
-        this.precioPorNoche = json.getDouble("precioPorNoche");
-        this.estadoHabitacion = EstadoHabitacion.valueOf(json.getString("estado"));
-        this.motivoNoDisponible = json.optString("motivoNoDisponible", "");
     }
 
     @Override
