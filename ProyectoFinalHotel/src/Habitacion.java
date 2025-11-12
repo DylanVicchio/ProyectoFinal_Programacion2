@@ -1,8 +1,10 @@
+import org.json.JSONObject;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-public class Habitacion {
+public class Habitacion implements Guardable{
 
     private final int id;
     private static int contador = 1;
@@ -23,6 +25,17 @@ public class Habitacion {
         this.precioPorNoche = tipo.getPrecio();
         this.estadoHabitacion = EstadoHabitacion.LIBRE;
         this.motivoNoDisponible = "";
+    }
+
+    public Habitacion(JSONObject json) {
+        this.id = json.getInt("id");
+        this.numero = json.getInt("numero");
+        this.tipoHabitacion = TipoHabitacion.valueOf(json.getString("tipo"));
+        this.piso = json.getInt("piso");
+        this.capacidad = json.getInt("capacidad");
+        this.precioPorNoche = json.getDouble("precioPorNoche");
+        this.estadoHabitacion = EstadoHabitacion.valueOf(json.getString("estado"));
+        this.motivoNoDisponible = json.optString("motivoNoDisponible", "");
     }
 
     public int getId() {
@@ -57,47 +70,95 @@ public class Habitacion {
         return motivoNoDisponible;
     }
 
+
+
     public void setNumero(int numero) {
+        if(numero < 0){
+            throw new IllegalArgumentException("Numero de habitacion invalido");
+        }
         this.numero = numero;
     }
 
     public void setTipoHabitacion(TipoHabitacion tipoHabitacion) {
         this.tipoHabitacion = tipoHabitacion;
+        this.capacidad = tipoHabitacion.getCapacidad();
+        this.precioPorNoche = tipoHabitacion.getPrecio();
     }
 
     public void setPiso(int piso) {
+        if(piso < 0){
+            throw new IllegalArgumentException("Piso invalido");
+        }
         this.piso = piso;
     }
 
-    public void setCapacidad(int capacidad) {
-        this.capacidad = capacidad;
-    }
+    public void setEstadoHabitacion(EstadoHabitacion estadoHabitacionNuevo, String motivo) {
+        this.estadoHabitacion = estadoHabitacionNuevo;
 
-    public void setPrecioPorNoche(double precioPorNoche) {
-        if (precioPorNoche < 0) {
-            throw new IllegalArgumentException("Precio por noche no valido");
+        if(estadoHabitacionNuevo == estadoHabitacion.LIMPIEZA ||
+                estadoHabitacionNuevo == estadoHabitacion.MANTENIMIENTO ||
+                estadoHabitacionNuevo == estadoHabitacion.FUERA_SERVICIO){
+            this.motivoNoDisponible = motivo;
+        }else{
+            this.motivoNoDisponible = "";
         }
-        this.precioPorNoche = precioPorNoche;
     }
 
-    public void setEstadoHabitacion(EstadoHabitacion estadoHabitacion) {
-        this.estadoHabitacion = estadoHabitacion;
-    }
+    public boolean estaDisponible(LocalDate inicio, LocalDate fin){
+        if(inicio == null || fin == null){
+            throw new IllegalArgumentException("Fechas nulas invalidas");
+        }
 
-    public void setMotivoNoDisponible(String motivoNoDisponible) {
-        this.motivoNoDisponible = motivoNoDisponible;
-    }
+        if(inicio.isAfter(fin)){
+            throw new IllegalArgumentException("Fecha incompatibles");
+        }
 
-    public boolean estaDisponmible(LocalDate inicio, LocalDate fin){
-        //falta completar clases para consultas
+        if(estadoHabitacion != EstadoHabitacion.LIBRE && estadoHabitacion != EstadoHabitacion.LIMPIEZA){
+            return false;
+        }
+
+        //falta consultar si hay alguna reserva para esa fecha
+
+        return estadoHabitacion == EstadoHabitacion.LIBRE;
     }
 
     public double calcularPrecio(int noches){
-        if(noches < 0){
-            throw new IllegalArgumentException("Noches no validas");
+        if(noches <= 0){
+            throw new IllegalArgumentException("Noches invalidas");
         }
 
         return noches * precioPorNoche;
+    }
+
+    @Override
+    public JSONObject toJSON() {
+        JSONObject object = new JSONObject();
+        object.put("id", this.id);
+        object.put("numero", this.numero);
+        object.put("tipoHabitacion", this.tipoHabitacion.name());
+        object.put("piso", this.piso);
+        object.put("capacidad", this.capacidad);
+        object.put("precioPorNoche", this.precioPorNoche);
+        object.put("estadoHabitacion", this.estadoHabitacion.name());
+        object.put("motivoNoDisponible", this.motivoNoDisponible);
+        return object;
+    }
+
+    @Override
+    public void guardarEnArchivo() {
+        JSONUtiles.escribirArchivo("Habitacion" + id + ".json", toJSON());
+    }
+
+    @Override
+    public void cargarDesdeArchivo() {
+        JSONObject json = JSONUtiles.leerArchivo("Habitacion" + id + ".json");
+        this.numero = json.getInt("numero");
+        this.tipoHabitacion = TipoHabitacion.valueOf(json.getString("tipo"));
+        this.piso = json.getInt("piso");
+        this.capacidad = json.getInt("capacidad");
+        this.precioPorNoche = json.getDouble("precioPorNoche");
+        this.estadoHabitacion = EstadoHabitacion.valueOf(json.getString("estado"));
+        this.motivoNoDisponible = json.optString("motivoNoDisponible", "");
     }
 
     @Override
@@ -117,11 +178,11 @@ public class Habitacion {
         return "Habitacion{" +
                 "id=" + id +
                 ", numero=" + numero +
-                ", tipoHabitacion=" + tipoHabitacion +
+                ", tipoHabitacion=" + tipoHabitacion.getDescripcion() +
                 ", piso=" + piso +
                 ", capacidad=" + capacidad +
                 ", precioPorNoche=" + precioPorNoche +
-                ", estadoHabitacion=" + estadoHabitacion +
+                ", estadoHabitacion=" + estadoHabitacion.getDescripcion() +
                 ", motivoNoDisponible='" + motivoNoDisponible + '\'' +
                 '}';
     }

@@ -3,7 +3,8 @@ public enum EstadoHabitacion {
     OCUPADO("Ocupada"),
     RESERVADO("Reservada"),
     LIMPIEZA("Limpieza"),
-    MANTENIMIENTO("Mantenimiento");
+    MANTENIMIENTO("Mantenimiento"),
+    FUERA_SERVICIO("Fuera de servicio");
 
     private String descripcion;
 
@@ -13,5 +14,9 @@ public enum EstadoHabitacion {
 
     public String getDescripcion() {
         return descripcion;
+    }
+
+    public boolean estaDisponible() {
+        return this == LIBRE;
     }
 }
