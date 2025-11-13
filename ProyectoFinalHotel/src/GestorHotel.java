@@ -1,6 +1,6 @@
 import Interfaz.Guardable;
 import org.json.JSONArray;
-import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,5 +57,13 @@ public class GestorHotel<T extends Guardable>  {
                 jsonArray.put(elemento.toJSON());
             }
             JSONUtiles.escribirArchivo(archivoJSON, jsonArray);
+    }
+
+    public List<T> listarTodos() {
+        return new ArrayList<>(elementos); // Devuelve una copia
+    }
+
+    public void limpiar() {
+        elementos.clear();
     }
 }

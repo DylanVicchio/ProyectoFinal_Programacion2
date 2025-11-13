@@ -107,7 +107,7 @@ public class Habitacion implements Guardable {
         }
     }
 
-    public boolean estaDisponible(LocalDate inicio, LocalDate fin){
+    public boolean estaDisponible(){
         return estadoHabitacion.estaDisponible();
     }
 
