@@ -1,1 +1,42 @@
-[{"piso":1,"numero":101,"estadoHabitacion":"LIBRE","motivoNoDisponible":"","id":1,"tipoHabitacion":"INDIVIDUAL","capacidad":1,"precioPorNoche":1000},{"piso":1,"numero":102,"estadoHabitacion":"LIBRE","motivoNoDisponible":"","id":2,"tipoHabitacion":"INDIVIDUAL","capacidad":1,"precioPorNoche":1000},{"piso":2,"numero":201,"estadoHabitacion":"LIBRE","motivoNoDisponible":"","id":3,"tipoHabitacion":"DOBLE","capacidad":2,"precioPorNoche":2000},{"piso":3,"numero":301,"estadoHabitacion":"LIBRE","motivoNoDisponible":"","id":4,"tipoHabitacion":"SUITE","capacidad":2,"precioPorNoche":6000}]
+[
+  {
+    "piso": 1,
+    "numero": 101,
+    "estadoHabitacion": "LIMPIEZA",
+    "motivoNoDisponible": "Limpieza luego del check out",
+    "id": 1,
+    "tipoHabitacion": "INDIVIDUAL",
+    "capacidad": 1,
+    "precioPorNoche": 1000
+  },
+  {
+    "piso": 1,
+    "numero": 102,
+    "estadoHabitacion": "LIBRE",
+    "motivoNoDisponible": "",
+    "id": 2,
+    "tipoHabitacion": "INDIVIDUAL",
+    "capacidad": 1,
+    "precioPorNoche": 1000
+  },
+  {
+    "piso": 2,
+    "numero": 201,
+    "estadoHabitacion": "LIBRE",
+    "motivoNoDisponible": "",
+    "id": 3,
+    "tipoHabitacion": "DOBLE",
+    "capacidad": 2,
+    "precioPorNoche": 2000
+  },
+  {
+    "piso": 3,
+    "numero": 301,
+    "estadoHabitacion": "LIBRE",
+    "motivoNoDisponible": "",
+    "id": 4,
+    "tipoHabitacion": "SUITE",
+    "capacidad": 2,
+    "precioPorNoche": 6000
+  }
+]

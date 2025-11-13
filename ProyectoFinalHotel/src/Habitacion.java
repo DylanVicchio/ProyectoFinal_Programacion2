@@ -1,9 +1,12 @@
 import Interfaz.Guardable;
 import org.json.JSONObject;
+
 import java.time.LocalDate;
 import java.util.Objects;
+
 import Enum.EstadoHabitacion;
 import Enum.TipoHabitacion;
+
 public class Habitacion implements Guardable {
 
     private final int id;
@@ -74,9 +77,8 @@ public class Habitacion implements Guardable {
     }
 
 
-
     public void setNumero(int numero) {
-        if(numero < 0){
+        if (numero < 0) {
             throw new IllegalArgumentException("Numero de habitacion invalido");
         }
         this.numero = numero;
@@ -89,7 +91,7 @@ public class Habitacion implements Guardable {
     }
 
     public void setPiso(int piso) {
-        if(piso < 0){
+        if (piso < 0) {
             throw new IllegalArgumentException("Piso invalido");
         }
         this.piso = piso;
@@ -98,21 +100,21 @@ public class Habitacion implements Guardable {
     public void setEstadoHabitacion(EstadoHabitacion estadoHabitacionNuevo, String motivo) {
         this.estadoHabitacion = estadoHabitacionNuevo;
 
-        if(estadoHabitacionNuevo == estadoHabitacion.LIMPIEZA ||
-                estadoHabitacionNuevo == estadoHabitacion.MANTENIMIENTO ||
-                estadoHabitacionNuevo == estadoHabitacion.FUERA_SERVICIO){
+        if (estadoHabitacionNuevo == EstadoHabitacion.LIMPIEZA ||
+                estadoHabitacionNuevo == EstadoHabitacion.MANTENIMIENTO ||
+                estadoHabitacionNuevo == EstadoHabitacion.FUERA_SERVICIO) {
             this.motivoNoDisponible = motivo;
-        }else{
+        } else {
             this.motivoNoDisponible = "";
         }
     }
 
-    public boolean estaDisponible(){
+    public boolean estaDisponible() {
         return estadoHabitacion.estaDisponible();
     }
 
-    public double calcularPrecio(int noches){
-        if(noches <= 0){
+    public double calcularPrecio(int noches) {
+        if (noches <= 0) {
             throw new IllegalArgumentException("Noches invalidas");
         }
         return noches * precioPorNoche;

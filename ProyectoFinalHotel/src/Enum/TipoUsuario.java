@@ -6,7 +6,7 @@ public enum TipoUsuario {
     PASAJERO();
 
 
-    private TipoUsuario() {
+    TipoUsuario() {
 
     }
 

@@ -8,7 +8,7 @@ public enum EstadoHabitacion {
     MANTENIMIENTO("Mantenimiento"),
     FUERA_SERVICIO("Fuera de servicio");
 
-    private String descripcion;
+    private final String descripcion;
 
     EstadoHabitacion(String descripcion) {
         this.descripcion = descripcion;

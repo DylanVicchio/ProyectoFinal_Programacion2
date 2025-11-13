@@ -1,5 +1,6 @@
 import java.time.LocalDate;
 import java.util.Scanner;
+
 import Enum.TipoUsuario;
 import Exception.DatosInvalidosException;
 
@@ -12,26 +13,27 @@ public class Main {
         manager.inicializarDatos();
     }
 
-    public static void main(String[] args) {
+    static void main(String[] args) {
 
         HotelManagerE manager = new HotelManagerE();
 
-        if(!manager.cargarDatos()){
+        if (!manager.cargarDatos()) {
             System.out.println("No se encontraron datos persistentes.");
             crearDatosIniciales(manager);
 
             System.out.println("Sistema inicializado. Vuelva a ejecutar para cargar los datos.");
             return;
+            // Primera ejecucion
         }
 
         System.out.println("Datos cargados correctamente. Iniciando sesión.");
-        menuLogin(manager);
+        menuLogin(manager); // Menu de Inicio de Sesion
 
     }
 
     private static void menuLogin(HotelManagerE manager) {
         Scanner scanner = new Scanner(System.in);
-        while(true) {
+        while (true) {
             System.out.println("\n--- BIENVENIDO AL SISTEMA DEL HOTEL ---");
             System.out.println("Ingrese username (o 'salir'):");
             String user = scanner.nextLine();
@@ -160,6 +162,22 @@ public class Main {
                         manager.realizarCheckOut(habOut);
                         break;
                     case "4":
+                        System.out.print("Ingrese ID Habitación: ");
+                        int habConsumo = Integer.parseInt(scanner.nextLine());
+
+                        System.out.print("Descripción del consumo (ej: Minibar, Room Service): ");
+                        String descripcion = scanner.nextLine();
+
+                        System.out.print("Monto: ");
+                        double monto = Double.parseDouble(scanner.nextLine());
+
+                        manager.agregarConsumo(habConsumo, descripcion, monto);
+                        break;
+                    case "5":
+                        System.out.print("Ingrese ID Habitación: ");
+                        int habID = Integer.parseInt(scanner.nextLine());
+                        manager.listarConsumosDeOcupacion(habID);
+                    case "6":
                         manager.logout();
                         System.out.println("Sesión cerrada.");
                         break;
@@ -175,7 +193,7 @@ public class Main {
     }
 
     private static LocalDate pedirFecha(Scanner scanner) throws DatosInvalidosException {
-        System.out.println( "\n(Formato DD/MM/AAAA): ");
+        System.out.println("\n(Formato DD/MM/AAAA): ");
         try {
             System.out.print("  Día (DD): ");
             int dia = Integer.parseInt(scanner.nextLine());

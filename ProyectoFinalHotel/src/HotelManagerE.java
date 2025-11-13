@@ -1,7 +1,9 @@
 import org.json.JSONArray;
 import org.json.JSONObject;
+
 import java.time.LocalDate;
 import java.util.List;
+
 import Enum.EstadoHabitacion;
 import Enum.TipoUsuario;
 import Enum.EstadoReserva;
@@ -14,11 +16,11 @@ import Enum.TipoHabitacion;
 
 public class HotelManagerE {
 
-    private GestorHotel<Habitacion> gestorHabitaciones;
-    private GestorHotel<Pasajero> gestorPasajeros;
-    private GestorHotel<Reserva> gestorReservas;
-    private GestorHotel<Ocupacion> gestorOcupaciones;
-    private GestorHotel<Usuario> gestorUsuarios;
+    private final GestorHotel<Habitacion> gestorHabitaciones;
+    private final GestorHotel<Pasajero> gestorPasajeros;
+    private final GestorHotel<Reserva> gestorReservas;
+    private final GestorHotel<Ocupacion> gestorOcupaciones;
+    private final GestorHotel<Usuario> gestorUsuarios;
 
     private Usuario usuarioLogueado;
 
@@ -35,7 +37,7 @@ public class HotelManagerE {
 
     public boolean login(String username, String password) {
         List<Usuario> usuarios = gestorUsuarios.listarTodos();
-        for(Usuario u : usuarios) {
+        for (Usuario u : usuarios) {
             if (u.autenticar(username, password)) {
                 this.usuarioLogueado = u;
                 System.out.println("Login exitoso. Bienvenido, " + u.getNombre() + " (" + u.getTipoUsuario() + ")");
@@ -61,12 +63,14 @@ public class HotelManagerE {
             throw new SeguridadException("Debe iniciar sesión.");
         }
     }
+
     private void checkRecepcionista() throws SeguridadException {
         checkLogin();
         if (!(usuarioLogueado instanceof Recepcionista)) {
             throw new SeguridadException("Acción solo para Recepcionistas.");
         }
     }
+
     private void checkAdmin() throws SeguridadException {
         checkLogin();
         if (!(usuarioLogueado instanceof Administrador)) {
@@ -85,7 +89,8 @@ public class HotelManagerE {
         Habitacion habitacion = gestorHabitaciones.buscarPorId(numHabitacion);
 
         if (pasajero == null) throw new DatosInvalidosException("Pasajero no encontrado (DNI: " + dniPasajero + ")");
-        if (habitacion == null) throw new DatosInvalidosException("Habitación no encontrada (Nro: " + numHabitacion + ")");
+        if (habitacion == null)
+            throw new DatosInvalidosException("Habitación no encontrada (Nro: " + numHabitacion + ")");
         if (inicio.isAfter(fin) || inicio.isBefore(LocalDate.now())) {
             throw new DatosInvalidosException("Fechas inválidas.");
         }
@@ -123,7 +128,7 @@ public class HotelManagerE {
     }
 
     public Ocupacion realizarCheckOut(int numHabitacion)
-            throws DatosInvalidosException, ReservaInvalidaException, SeguridadException {
+            throws DatosInvalidosException, SeguridadException {
 
         checkRecepcionista(); // PERMISO
 
@@ -137,18 +142,110 @@ public class HotelManagerE {
         Ocupacion ocupacionActiva = null;
         List<Ocupacion> ocupaciones = gestorOcupaciones.listarTodos();
         for (Ocupacion o : ocupaciones) {
-            if (o.getHabitacion() != null && o.getHabitacion().equals(habitacion) && o.verificarActiva()) {
+            if (o.getHabitacion() != null && o.getHabitacion().getId() == habitacion.getId() && o.verificarActiva()) {
                 ocupacionActiva = o;
                 break;
             }
         }
 
-        if (ocupacionActiva == null) throw new DatosInvalidosException("Error interno: No se encontró ocupación activa para la habitación " + numHabitacion);
+        if (ocupacionActiva == null)
+            throw new DatosInvalidosException("Error interno: No se encontró ocupación activa para la habitación " + numHabitacion);
 
         ocupacionActiva.finalizarOcupacion();
 
         System.out.println("Check-Out Exitoso. Habitación " + numHabitacion + ". Monto Total: $" + ocupacionActiva.getMontoPagado());
         return ocupacionActiva;
+    }
+
+    public void agregarConsumo(int numHabitacion, String descripcion, double monto) throws DatosInvalidosException, SeguridadException {
+
+        checkRecepcionista();
+
+        if (descripcion == null || descripcion.trim().isEmpty())
+            throw new DatosInvalidosException("Descripcion no puede estar vacia.");
+
+        if (monto <= 0) {
+            throw new DatosInvalidosException("Monto precio debe ser mayor a 0.");
+        }
+
+        Habitacion habitacion = gestorHabitaciones.buscarPorId(numHabitacion);
+        if (habitacion == null) {
+            throw new DatosInvalidosException("Habitacion no encontrada.");
+        }
+
+        if (habitacion.getEstadoHabitacion() != EstadoHabitacion.OCUPADO) {
+            throw new DatosInvalidosException("La habitacion no esta ocupada actualmente.");
+        }
+
+        Ocupacion ocupacionActiva = null;
+        List<Ocupacion> ocupaciones = gestorOcupaciones.listarTodos();
+
+        for (Ocupacion o : ocupaciones) {
+            if (o.getHabitacion() != null && o.getHabitacion().getId() == habitacion.getId() && o.verificarActiva()) {
+                ocupacionActiva = o;
+                break;
+            }
+        }
+
+        if (ocupacionActiva == null) {
+            throw new DatosInvalidosException("No se encontro ocuppacion activa para la habitacion " + numHabitacion);
+        }
+
+        Consumo nuevoConsumo = new Consumo(descripcion, monto);
+        ocupacionActiva.agregarConsumos(nuevoConsumo);
+
+        System.out.println("  Consumo agregado exitosamente");
+        System.out.println("  Habitación: " + numHabitacion);
+        System.out.println("  Descripción: " + descripcion);
+        System.out.println("  Monto: " + monto);
+        System.out.println("  Total de consumos en la ocupación: " + ocupacionActiva.getConsumos().size());
+    }
+
+    public List<Consumo> listarConsumosDeOcupacion(int numHabitacion)
+            throws DatosInvalidosException, SeguridadException {
+
+        checkRecepcionista();
+
+        Habitacion habitacion = gestorHabitaciones.buscarPorId(numHabitacion);
+        if (habitacion == null) {
+            throw new DatosInvalidosException("Habitación no encontrada.");
+        }
+
+        Ocupacion ocupacionActiva = null;
+        List<Ocupacion> ocupaciones = gestorOcupaciones.listarTodos();
+
+        for (Ocupacion o : ocupaciones) {
+            if (o.getHabitacion() != null &&
+                    o.getHabitacion().getId() == habitacion.getId() &&
+                    o.verificarActiva()) {
+                ocupacionActiva = o;
+                break;
+            }
+        }
+
+        if (ocupacionActiva == null) {
+            throw new DatosInvalidosException(
+                    "No hay ocupación activa en la habitación " + numHabitacion
+            );
+        }
+
+        List<Consumo> consumos = ocupacionActiva.getConsumos();
+
+        if (consumos.isEmpty()) {
+            System.out.println("No hay consumos registrados para esta ocupación.");
+        } else {
+            System.out.println("\n=== Consumos de Habitación " + numHabitacion + " ===");
+            double total = 0;
+            for (Consumo c : consumos) {
+                System.out.println("  - " + c.getDescripcion() + ": " + c.getMonto() +
+                        " (" + c.getFecha().toLocalDate() + ")");
+                total += c.getMonto();
+            }
+            System.out.println("  TOTAL CONSUMOS: " + total);
+            System.out.println("=======================================\n");
+        }
+
+        return consumos;
     }
 
     private boolean verificarDisponibilidad(Habitacion habitacion, LocalDate inicio, LocalDate fin) {
@@ -170,7 +267,7 @@ public class HotelManagerE {
         return true;
     }
 
-    // AÑADIDO: Métodos de Admin
+    // Métodos de Admin
     public void crearUsuario(String nombre, String apellido, int numeroCell, int dni, int direccion, String mail, String username, String password, boolean activo, TipoUsuario tipo)
             throws SeguridadException {
 
@@ -184,7 +281,7 @@ public class HotelManagerE {
         System.out.println("Usuario " + username + " creado.");
     }
 
-    // --- 3. PERSISTENCIA (El Cerebro de Carga/Guardado) ---
+    // Persistencia de datos Archivos JSON
 
     public void inicializarDatos() {
         System.out.println("Creando datos iniciales controlados...");
@@ -245,7 +342,7 @@ public class HotelManagerE {
         cargarPasajeros();
         cargarUsuarios();
 
-        if(gestorUsuarios.cantidad() > 0){
+        if (gestorUsuarios.cantidad() > 0) {
             cargado = true;
         }
 
@@ -264,18 +361,23 @@ public class HotelManagerE {
         return cargado;
     }
 
+    // 1.Carga de habitaciones
     private void cargarHabitaciones() {
         JSONArray array = JSONUtiles.leerArchivoArray("habitaciones.json");
-        for (int i=0; i < array.length(); i++) {
+        for (int i = 0; i < array.length(); i++) {
             gestorHabitaciones.agregar(new Habitacion(array.getJSONObject(i)));
         }
     }
+
+    // 2.Carga de pasajeros
     private void cargarPasajeros() {
         JSONArray array = JSONUtiles.leerArchivoArray("pasajeros.json");
-        for (int i=0; i < array.length(); i++) {
+        for (int i = 0; i < array.length(); i++) {
             gestorPasajeros.agregar(new Pasajero(array.getJSONObject(i)));
         }
     }
+
+    // 3. Carga de usuarios
     private void cargarUsuarios() {
         JSONArray array = JSONUtiles.leerArchivoArray("usuarios.json");
         for (int i = 0; i < array.length(); i++) {
@@ -290,9 +392,10 @@ public class HotelManagerE {
         }
     }
 
+    // 4. Carga de reservas
     private void cargarReservas() {
         JSONArray array = JSONUtiles.leerArchivoArray("reservas.json");
-        for (int i=0; i < array.length(); i++) {
+        for (int i = 0; i < array.length(); i++) {
             Reserva r = new Reserva(array.getJSONObject(i));
             Pasajero p = gestorPasajeros.buscarPorDni(r.getDniPasajero_json());
             Habitacion h = gestorHabitaciones.buscarPorId(r.getIdHabitacion_json());
@@ -306,9 +409,10 @@ public class HotelManagerE {
         }
     }
 
+    // 5. Carga de ocupaciones
     private void cargarOcupaciones() {
         JSONArray array = JSONUtiles.leerArchivoArray("ocupaciones.json");
-        for (int i=0; i < array.length(); i++) {
+        for (int i = 0; i < array.length(); i++) {
             Ocupacion o = new Ocupacion(array.getJSONObject(i));
             Pasajero p = gestorPasajeros.buscarPorDni(o.getDniPasajero_json());
             Habitacion h = gestorHabitaciones.buscarPorId(o.getIdHabitacion_json());
@@ -323,6 +427,7 @@ public class HotelManagerE {
         }
     }
 
+    // 6. Reconecta ocupaciones a pasajeros
     private void reconectarHistorialPasajeros() {
         List<Pasajero> pasajeros = gestorPasajeros.listarTodos();
         List<Ocupacion> ocupaciones = gestorOcupaciones.listarTodos();

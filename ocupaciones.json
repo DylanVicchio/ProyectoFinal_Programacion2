@@ -1,1 +1,12 @@
-[]
+[
+  {
+    "dniPasajero": 30123456,
+    "consumos": [],
+    "fechaCheckOut": "2025-11-13T18:37:09.240258900",
+    "id": 1,
+    "montoPagado": 1000,
+    "idHabitacion": 1,
+    "idReserva": 1,
+    "fechaCheckIn": "2025-11-13T18:36:59.487226"
+  }
+]

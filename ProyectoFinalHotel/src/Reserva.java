@@ -1,10 +1,12 @@
 import Interfaz.Guardable;
 import org.json.JSONObject;
 import Enum.EstadoReserva;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Objects;
+
 import Exception.ReservaInvalidaException;
 
 public class Reserva implements Guardable {
@@ -13,17 +15,17 @@ public class Reserva implements Guardable {
     private final int id;
     private static int contador = 1;
     private Pasajero pasajero;
-    private LocalDateTime diaCreacion;
+    private final LocalDateTime diaCreacion;
     private LocalDate diaEntrada;
     private LocalDate diaSalida;
     private Habitacion habitacionReservada;
     private EstadoReserva estado;
     private double montoTotal;
-    private int dniPasajero_json;
-    private int idHabitacion_json;
+    private final int dniPasajero_json;
+    private final int idHabitacion_json;
 
 
-    public Reserva(Pasajero pasajero ,LocalDate diaEntrada, LocalDate diaSalida, Habitacion habitacion) {
+    public Reserva(Pasajero pasajero, LocalDate diaEntrada, LocalDate diaSalida, Habitacion habitacion) {
 
         this.id = contador;
         contador++;
@@ -71,9 +73,11 @@ public class Reserva implements Guardable {
     public int getDniPasajero_json() {
         return dniPasajero_json;
     }
+
     public int getIdHabitacion_json() {
         return idHabitacion_json;
     }
+
     public int getId() {
         return this.id;
     }
@@ -81,33 +85,45 @@ public class Reserva implements Guardable {
     public Pasajero getPasajero() {
         return pasajero;
     }
+
     public void setPasajero(Pasajero pasajero) {
         this.pasajero = pasajero;
     }
+
     public LocalDateTime getDiaCreacion() {
         return diaCreacion;
     }
+
     public LocalDate getDiaEntrada() {
         return diaEntrada;
     }
+
     public void setDiaEntrada(LocalDate diaEntrada) {
-        this.diaEntrada = diaEntrada; calcularNuevoMonto();
+        this.diaEntrada = diaEntrada;
+        calcularNuevoMonto();
     }
+
     public LocalDate getDiaSalida() {
         return diaSalida;
     }
+
     public void setDiaSalida(LocalDate diaSalida) {
         this.diaSalida = diaSalida;
     }
+
     public Habitacion getHabitacionReservada() {
         return habitacionReservada;
     }
+
     public void setHabitacionReservada(Habitacion habitacionReservada) {
-        this.habitacionReservada = habitacionReservada; calcularNuevoMonto();
+        this.habitacionReservada = habitacionReservada;
+        calcularNuevoMonto();
     }
+
     public double getMontoTotal() {
         return montoTotal;
     }
+
     public EstadoReserva getEstado() {
         return estado;
     }
@@ -116,7 +132,7 @@ public class Reserva implements Guardable {
         long noches = ChronoUnit.DAYS.between(this.diaEntrada, this.diaSalida);
         if (noches <= 0) {
             return 1;
-        }else {
+        } else {
             return noches;
         }
     }
@@ -125,7 +141,6 @@ public class Reserva implements Guardable {
 
         this.montoTotal = habitacionReservada.calcularPrecio((int) calcularNoches());
     }
-
 
 
     public void confirmarReserva() throws ReservaInvalidaException {
@@ -142,7 +157,7 @@ public class Reserva implements Guardable {
         this.estado = EstadoReserva.CONFIRMADA;
     }
 
-    public void cancelarReserva () {
+    public void cancelarReserva() {
 
         if (this.estado == EstadoReserva.COMPLETADA) {
             throw new IllegalStateException("No se puede cancelar una reserva COMPLETADA.");
@@ -151,11 +166,11 @@ public class Reserva implements Guardable {
 
     }
 
-    public void finalizarReserva (){
+    public void finalizarReserva() {
 
-        if (this.estado == EstadoReserva.CONFIRMADA){
+        if (this.estado == EstadoReserva.CONFIRMADA) {
             this.estado = EstadoReserva.COMPLETADA;
-        }else {
+        } else {
             throw new IllegalStateException("Solo se puede finalizar una reserva CONFIRMADA.");
         }
 
@@ -194,7 +209,7 @@ public class Reserva implements Guardable {
     public String toString() {
         long noches = ChronoUnit.DAYS.between(diaEntrada, diaSalida);
         String pStr = (pasajero != null) ? pasajero.getNombre() : "DNI: " + dniPasajero_json;
-        String hStr = (habitacionReservada != null) ? ""+habitacionReservada.getNumero() : "ID: " + idHabitacion_json;
+        String hStr = (habitacionReservada != null) ? "" + habitacionReservada.getNumero() : "ID: " + idHabitacion_json;
 
         return "Reserva{" +
                 "id=" + id +

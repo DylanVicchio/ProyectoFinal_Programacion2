@@ -1,4 +1,5 @@
 import java.util.Objects;
+
 import Enum.TipoUsuario;
 import Interfaz.Autentificable;
 import org.json.JSONObject;
@@ -99,7 +100,6 @@ public abstract class Usuario extends Persona implements Autentificable {
                 ", activo=" + activo +
                 '}';
     }
-
 
 
 }

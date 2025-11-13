@@ -1,6 +1,7 @@
 import Interfaz.Guardable;
 import org.json.JSONArray;
 import org.json.JSONObject;
+
 import java.util.ArrayList;
 
 
@@ -8,7 +9,7 @@ public class Pasajero extends Persona implements Guardable {
 
     private String origen;
     private String domicilioOrigen;
-    private ArrayList<Ocupacion> historialEstadia;
+    private final ArrayList<Ocupacion> historialEstadia;
 
     public Pasajero(String nombre, String apellido, int numeroCell, int dni, int direccion, String mail, String origen, String domicilioOrigen) {
         super(nombre, apellido, numeroCell, dni, direccion, mail);
@@ -26,8 +27,6 @@ public class Pasajero extends Persona implements Guardable {
     }
 
 
-
-
     public void setOrigen(String origen) {
         this.origen = origen;
     }
@@ -40,7 +39,7 @@ public class Pasajero extends Persona implements Guardable {
         this.domicilioOrigen = domicilioOrigen;
     }
 
-    public void addHistorial (Ocupacion ocupacion) throws IllegalArgumentException{
+    public void addHistorial(Ocupacion ocupacion) throws IllegalArgumentException {
         if (ocupacion == null) {
             throw new IllegalArgumentException("La ocupación no puede ser null");
         }

@@ -7,7 +7,6 @@ public class DatosInvalidosException extends Exception {
     }
 
 
-
     @Override
     public String getMessage() {
         return "Datos incorrectos: " + super.getMessage();

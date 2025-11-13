@@ -4,9 +4,9 @@ import org.json.JSONArray;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GestorHotel<T extends Guardable>  {
-    private List<T> elementos;
-    private String archivoJSON;
+public class GestorHotel<T extends Guardable> {
+    private final List<T> elementos;
+    private final String archivoJSON;
 
     public GestorHotel(String archivoJSON) {
         this.elementos = new ArrayList<>();
@@ -51,12 +51,12 @@ public class GestorHotel<T extends Guardable>  {
     }
 
     public void guardarEnArchivo() {
-            JSONArray jsonArray = new JSONArray();
+        JSONArray jsonArray = new JSONArray();
 
-            for (T elemento : elementos) {
-                jsonArray.put(elemento.toJSON());
-            }
-            JSONUtiles.escribirArchivo(archivoJSON, jsonArray);
+        for (T elemento : elementos) {
+            jsonArray.put(elemento.toJSON());
+        }
+        JSONUtiles.escribirArchivo(archivoJSON, jsonArray);
     }
 
     public List<T> listarTodos() {

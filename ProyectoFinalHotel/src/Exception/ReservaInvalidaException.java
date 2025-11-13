@@ -8,6 +8,6 @@ public class ReservaInvalidaException extends Exception {
 
     @Override
     public String getMessage() {
-        return "Reserva invalida: "+ super.getMessage();
+        return "Reserva invalida: " + super.getMessage();
     }
 }

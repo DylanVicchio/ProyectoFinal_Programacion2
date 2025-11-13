@@ -1,1 +1,12 @@
-[]
+[
+  {
+    "dniPasajero": 30123456,
+    "estado": "COMPLETADA",
+    "diaEntrada": "2026-12-15",
+    "fechaCreacion": "2025-11-13T18:36:54.047173500",
+    "id": 1,
+    "diaSalida": "2027-01-01",
+    "idHabitacion": 1,
+    "montoTotal": 17000
+  }
+]

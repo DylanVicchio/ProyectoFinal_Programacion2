@@ -23,7 +23,7 @@ public class Consumo implements Guardable {
         this.descripcion = json.getString("descripcion");
         this.monto = json.getDouble("monto");
         this.fecha = LocalDateTime.parse(json.getString("fecha"));
-        if(this.id >= contador){
+        if (this.id >= contador) {
             contador = this.id + 1;
         }
     }
@@ -45,13 +45,12 @@ public class Consumo implements Guardable {
     }
 
 
-
     public void setDescripcion(String descripcion) {
 
-        if(descripcion == null || descripcion.trim().isEmpty()){
-         throw new IllegalArgumentException("Descripcion vacia invalida");
+        if (descripcion == null || descripcion.trim().isEmpty()) {
+            throw new IllegalArgumentException("Descripcion vacia invalida");
         }
-            this.descripcion = descripcion;
+        this.descripcion = descripcion;
     }
 
     public void setMonto(double monto) {

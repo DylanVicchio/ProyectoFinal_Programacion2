@@ -8,9 +8,9 @@ public enum TipoHabitacion {
     SUITE("Suite", 2, 6000),
     PRESIDENCIAL("Presidencial", 4, 20000);
 
-    private String descripcion;
-    private int capacidad;
-    private double precio;
+    private final String descripcion;
+    private final int capacidad;
+    private final double precio;
 
     TipoHabitacion(String descripcion, int capacidad, double precio) {
         this.descripcion = descripcion;
