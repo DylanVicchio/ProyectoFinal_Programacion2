@@ -1,6 +1,9 @@
 import java.util.Objects;
 import Enum.TipoUsuario;
-public abstract class Usuario extends Persona {
+import Interfaz.Autentificable;
+import org.json.JSONObject;
+
+public abstract class Usuario extends Persona implements Autentificable {
     private String username;
     private String password;
     private TipoUsuario tipoUsuario;
@@ -12,6 +15,34 @@ public abstract class Usuario extends Persona {
         this.password = password;
         this.tipoUsuario = tipoUsuario;
         this.activo = activo;
+    }
+
+    public Usuario(JSONObject json) {
+        super(json);
+        this.username = json.getString("username");
+        this.password = json.getString("password");
+        this.tipoUsuario = TipoUsuario.valueOf(json.getString("tipoUsuario"));
+        this.activo = json.getBoolean("activo");
+    }
+
+    @Override
+    public boolean autenticar(String username, String password) {
+        return this.activo && this.username.equals(username) && this.password.equals(password);
+    }
+
+    @Override
+    public boolean validarSesion() {
+        return this.activo;
+    }
+
+    @Override
+    public JSONObject toJSON() {
+        JSONObject json = super.toJSON();
+        json.put("username", this.username);
+        json.put("password", this.password);
+        json.put("tipoUsuario", this.tipoUsuario.name());
+        json.put("activo", this.activo);
+        return json;
     }
 
     public String getUsername() {

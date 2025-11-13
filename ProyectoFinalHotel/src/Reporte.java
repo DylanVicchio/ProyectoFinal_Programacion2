@@ -8,9 +8,10 @@ public class Reporte {
     private String tipo;
     private LocalDateTime fechaGeneracion;
     private String contenido;
+    private static int contador = 1;
 
     public Reporte(int id, String tipo, LocalDateTime fechaGeneracion, String contenido) {
-        this.id = id;
+        this.id = contador++;
         this.tipo = tipo;
         this.fechaGeneracion = fechaGeneracion;
         this.contenido = contenido;

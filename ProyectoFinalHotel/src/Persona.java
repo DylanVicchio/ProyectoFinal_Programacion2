@@ -1,6 +1,8 @@
 import java.util.Objects;
+import Interfaz.Guardable;
+import org.json.JSONObject;
 
-public abstract class Persona {
+public abstract class Persona implements Guardable {
 
     private int id;
     private static int contador = 0;
@@ -20,6 +22,19 @@ public abstract class Persona {
         this.dni = dni;
         this.direccion = direccion;
         this.mail = mail;
+    }
+
+    public Persona(JSONObject json) {
+        this.id = json.getInt("id");
+        this.nombre = json.getString("nombre");
+        this.apellido = json.getString("apellido");
+        this.numeroCell = json.getInt("numeroCell");
+        this.dni = json.getInt("dni");
+        this.direccion = json.getInt("direccion");
+        this.mail = json.getString("mail");
+        if (this.id >= contador) {
+            contador = this.id + 1;
+        }
     }
 
     public int getId() {
@@ -79,6 +94,20 @@ public abstract class Persona {
     }
 
     @Override
+    public JSONObject toJSON() {
+        JSONObject json = new JSONObject();
+        json.put("id", this.id);
+        json.put("nombre", this.nombre);
+        json.put("apellido", this.apellido);
+        json.put("numeroCell", this.numeroCell);
+        json.put("dni", this.dni);
+        json.put("direccion", this.direccion);
+        json.put("mail", this.mail);
+        return json;
+    }
+
+
+    @Override
     public String toString() {
         return "Persona{" +
                 "id=" + id +
@@ -95,11 +124,11 @@ public abstract class Persona {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         Persona persona = (Persona) o;
-        return id == persona.id && dni == persona.dni;
+        return dni == persona.dni;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, dni);
+        return Objects.hash(dni);
     }
 }
