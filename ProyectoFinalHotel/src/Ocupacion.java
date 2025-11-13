@@ -6,6 +6,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Objects;
 import Enum.EstadoHabitacion;
+import Exception.ReservaInvalidaException;
 public class Ocupacion implements Guardable {
 
     private int id;
@@ -17,6 +18,9 @@ public class Ocupacion implements Guardable {
     private LocalDateTime fechaCheckOut;
     private double montoPagado;
     private ArrayList<Consumo> consumos;
+    private int idHabitacion;
+    private int dniPasajero;
+    private int idReserva;
 
     public Ocupacion(Habitacion habitacion, Pasajero pasajero, Reserva reserva) {
         this.id = contador++;
@@ -27,8 +31,12 @@ public class Ocupacion implements Guardable {
         this.fechaCheckOut = null;
         this.montoPagado = 0;
         this.consumos = new ArrayList<>();
-
         habitacion.setEstadoHabitacion(EstadoHabitacion.OCUPADO, "");
+        this.idHabitacion = habitacion.getId();
+        this.dniPasajero = pasajero.getDni();
+        if(reserva != null) {
+            this.idReserva = reserva.getId();
+        }
     }
 
     public Ocupacion(JSONObject object){
@@ -41,18 +49,29 @@ public class Ocupacion implements Guardable {
         }
         this.montoPagado = object.getDouble("montoPagado");
 
+        this.idHabitacion = object.getInt("idHabitacion");
+        this.dniPasajero = object.getInt("dniPasajero");
+        this.idReserva = object.optInt("idReserva", -1);
+
+        this.habitacion = null;
+        this.pasajero = null;
+        this.reserva = null;
+
         this.consumos = new ArrayList<>();
         JSONArray arrayConsumos = object.getJSONArray("consumos");
         for(int i = 0; i < arrayConsumos.length(); i++){
             consumos.add(new Consumo(arrayConsumos.getJSONObject(i)));
         }
-
-        this.habitacion = new Habitacion(object.getJSONObject("habitacion"));
-        //Tira error porque faltan los constructores JSON de reserva y pasajero
-        this.pasajero = new Pasajero(object.getJSONObject("pasajero"));
-        this.reserva = new Reserva(object.getJSONObject("reserva"));
+        if (this.id >= contador) {
+            contador = this.id + 1;
+        }
     }
 
+    public void reconectarObjetos(Pasajero p, Habitacion h, Reserva r) {
+        this.pasajero = p;
+        this.habitacion = h;
+        this.reserva = r;
+    }
 
     public int getId() {
         return id;
@@ -86,7 +105,17 @@ public class Ocupacion implements Guardable {
         return new ArrayList<>(consumos);
     }
 
+    public int getIdHabitacion() {
+        return idHabitacion;
+    }
 
+    public int getDniPasajero() {
+        return dniPasajero;
+    }
+
+    public int getIdReserva() {
+        return idReserva;
+    }
 
     public void setFechaCheckOut(LocalDateTime fechaCheckOut) {
         this.fechaCheckOut = fechaCheckOut;
@@ -134,16 +163,13 @@ public class Ocupacion implements Guardable {
         return totalHabitacion + totalConsumos;
     }
 
-    public void finalizarOcupacion(){
+    public void finalizarOcupacion() throws ReservaInvalidaException {
         if(fechaCheckOut != null){
             throw new IllegalArgumentException("Check out ya fue realizado");
         }
         this.fechaCheckOut = LocalDateTime.now();
-
         this.montoPagado = calcularTotal();
-
         habitacion.setEstadoHabitacion(EstadoHabitacion.LIMPIEZA, "Limpieza luego del check out");
-
         pasajero.addHistorial(this);
 
         if(reserva != null){
@@ -159,18 +185,17 @@ public class Ocupacion implements Guardable {
     public JSONObject toJSON() {
         JSONObject object = new JSONObject();
         object.put("id", this.id);
-        object.put("pasajero", this.pasajero);
-        object.put("habitacion", this.habitacion);
-        object.put("reserva", this.reserva);
+        object.put("dniPasajero", this.dniPasajero);
+        object.put("idHabitacion", this.idHabitacion);
+        if(this.idReserva != -1) {
+            object.put("idReserva", this.idReserva);
+        }
         object.put("fechaCheckIn", this.fechaCheckIn.toString());
-
         if (fechaCheckOut != null) {
             object.put("fechaCheckOut", this.fechaCheckOut.toString());
         }
-
         object.put("montoPagado", this.montoPagado);
 
-        // Guardar consumos
         JSONArray consumosArray = new JSONArray();
         for (Consumo consumo : consumos) {
             consumosArray.put(consumo.toJSON());

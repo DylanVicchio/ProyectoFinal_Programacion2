@@ -36,6 +36,9 @@ public class Habitacion implements Guardable {
         this.precioPorNoche = json.getDouble("precioPorNoche");
         this.estadoHabitacion = EstadoHabitacion.valueOf(json.getString("estado"));
         this.motivoNoDisponible = json.optString("motivoNoDisponible", "");
+        if (this.id >= contador) {
+            contador = this.id + 1;
+        }
     }
 
     public int getId() {
@@ -105,28 +108,13 @@ public class Habitacion implements Guardable {
     }
 
     public boolean estaDisponible(LocalDate inicio, LocalDate fin){
-        if(inicio == null || fin == null){
-            throw new IllegalArgumentException("Fechas nulas invalidas");
-        }
-
-        if(inicio.isAfter(fin)){
-            throw new IllegalArgumentException("Fecha incompatibles");
-        }
-
-        if(estadoHabitacion != EstadoHabitacion.LIBRE && estadoHabitacion != EstadoHabitacion.LIMPIEZA){
-            return false;
-        }
-
-        //falta consultar si hay alguna reserva para esa fecha
-
-        return estadoHabitacion == EstadoHabitacion.LIBRE;
+        return estadoHabitacion.estaDisponible();
     }
 
     public double calcularPrecio(int noches){
         if(noches <= 0){
             throw new IllegalArgumentException("Noches invalidas");
         }
-
         return noches * precioPorNoche;
     }
 

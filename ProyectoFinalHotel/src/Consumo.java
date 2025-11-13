@@ -14,7 +14,7 @@ public class Consumo implements Guardable {
     public Consumo(String descripcion, double monto) {
         this.id = contador++;
         this.descripcion = descripcion;
-        setMonto(monto);
+        this.monto = monto;
         this.fecha = LocalDateTime.now();
     }
 
@@ -23,6 +23,9 @@ public class Consumo implements Guardable {
         this.descripcion = json.getString("descripcion");
         this.monto = json.getDouble("monto");
         this.fecha = LocalDateTime.parse(json.getString("fecha"));
+        if(this.id >= contador){
+            contador = this.id + 1;
+        }
     }
 
     public int getId() {
@@ -67,9 +70,9 @@ public class Consumo implements Guardable {
     public JSONObject toJSON() {
         JSONObject object = new JSONObject();
         object.put("id", this.id);
-        object.put("descipcion", this.descripcion);
+        object.put("descripcion", this.descripcion);
         object.put("monto", this.monto);
-        object.put("fecha", this.fecha);
+        object.put("fecha", this.fecha.toString());
         return object;
     }
 

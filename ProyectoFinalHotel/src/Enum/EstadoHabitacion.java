@@ -19,6 +19,6 @@ public enum EstadoHabitacion {
     }
 
     public boolean estaDisponible() {
-        return this == LIBRE;
+        return this == LIBRE || this == LIMPIEZA;
     }
 }

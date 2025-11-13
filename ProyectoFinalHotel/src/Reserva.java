@@ -47,6 +47,8 @@ public class Reserva implements Guardable {
         }
     }
 
+    public int getId() {return id;}
+
     public Pasajero getPasajero() {
         return pasajero;
     }
