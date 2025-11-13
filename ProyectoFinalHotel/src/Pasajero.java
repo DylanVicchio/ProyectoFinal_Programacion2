@@ -10,7 +10,7 @@ public class Pasajero extends Persona implements Guardable {
     private String domicilioOrigen;
     private ArrayList<Ocupacion> historialEstadia;
 
-    public Pasajero(String nombre, String apellido, int numeroCell, int dni, int direccion, String mail, String origen, String domicilioOrigen, Ocupacion ocupacion) {
+    public Pasajero(String nombre, String apellido, int numeroCell, int dni, int direccion, String mail, String origen, String domicilioOrigen) {
         super(nombre, apellido, numeroCell, dni, direccion, mail);
         this.origen = origen;
         this.domicilioOrigen = domicilioOrigen;
@@ -18,17 +18,11 @@ public class Pasajero extends Persona implements Guardable {
     }
 
     public Pasajero(JSONObject json) {
-        super(
-                json.getString("nombre"),
-                json.getString("apellido"),
-                json.getInt("numeroCell"),
-                json.getInt("dni"),
-                json.getInt("direccion"),
-                json.getString("mail")
-        );
+        super(json); // Carga datos de Persona
         this.origen = json.getString("origen");
         this.domicilioOrigen = json.getString("domicilioOrigen");
         this.historialEstadia = new ArrayList<>();
+        // El historial (idsHistorial) se carga en el HotelManager
     }
 
 
@@ -46,13 +40,26 @@ public class Pasajero extends Persona implements Guardable {
         this.domicilioOrigen = domicilioOrigen;
     }
 
-    public void addHistorial (Ocupacion ocupacion){
+    public void addHistorial (Ocupacion ocupacion) throws IllegalArgumentException{
+        if (ocupacion == null) {
+            throw new IllegalArgumentException("La ocupación no puede ser null");
+        }
         this.historialEstadia.add(ocupacion);
     }
 
-    public String getHistorial() {
+    public ArrayList<Ocupacion> getHistorial() {
+        return new ArrayList<>(this.historialEstadia);
+    }
+
+
+    public String getHistorialString() {
         StringBuilder str = new StringBuilder();
 
+        if (historialEstadia.isEmpty()) {
+            return "Sin estadías previas.";
+        }
+
+        str.append("Historial de Estadías:\n");
         for (int i = 0; i < this.historialEstadia.size(); i++) {
             str.append(this.historialEstadia.get(i).toString());
         }
@@ -65,23 +72,19 @@ public class Pasajero extends Persona implements Guardable {
 
     @Override
     public JSONObject toJSON() {
-        JSONObject json = new JSONObject();
-        json.put("id", getId());
-        json.put("nombre", getNombre());
-        json.put("apellido", getApellido());
-        json.put("numeroCell", getNumeroCell());
-        json.put("dni", getDni());
-        json.put("direccion", getDireccion());
-        json.put("mail", getMail());
+
+        JSONObject json = super.toJSON();
         json.put("origen", this.origen);
         json.put("domicilioOrigen", this.domicilioOrigen);
         json.put("cantidadEstadias", this.historialEstadia.size());
 
-        JSONArray idsOcupaciones = new JSONArray();
+        JSONArray idOcupaciones = new JSONArray();
         for (Ocupacion ocu : historialEstadia) {
-            idsOcupaciones.put(ocu.getId());
+
+            idOcupaciones.put(ocu.getId());
+
         }
-        json.put("idsHistorial", idsOcupaciones);
+        json.put("idsHistorial", idOcupaciones);
 
         return json;
     }
@@ -89,10 +92,12 @@ public class Pasajero extends Persona implements Guardable {
 
     @Override
     public String toString() {
-        return "Pasajero{" + super.toString() + '\'' +
-                "origen='" + origen + '\'' +
-                ", domicilioOrigen='" + domicilioOrigen + '\'' +
-                ", historialEstadia=" + getHistorial() +
+        // toString() simple
+        return "Pasajero{" +
+                "dni=" + getDni() +
+                ", nombre='" + getNombre() + " " + getApellido() + '\'' +
+                ", origen='" + origen + '\'' +
+                ", totalEstadias=" + historialEstadia.size() +
                 '}';
     }
 }

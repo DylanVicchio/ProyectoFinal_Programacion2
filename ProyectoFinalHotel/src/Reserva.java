@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Objects;
+import Exception.ReservaInvalidaException;
 
 public class Reserva implements Guardable {
 
@@ -18,77 +19,97 @@ public class Reserva implements Guardable {
     private Habitacion habitacionReservada;
     private EstadoReserva estado;
     private double montoTotal;
+    private int dniPasajero_json;
+    private int idHabitacion_json;
 
 
-    public Reserva(LocalDate diaEntrada, LocalDate diaSalida, Habitacion habitacion, String nombre, String apellido, int numeroCell, int dni, int direccion, String mail, String origen, String domicilioOrigen, Ocupacion ocupacion) {
-        this.diaCreacion = LocalDateTime.now();
+    public Reserva(Pasajero pasajero ,LocalDate diaEntrada, LocalDate diaSalida, Habitacion habitacion) {
+
         this.id = contador;
         contador++;
-        this.pasajero = new Pasajero( nombre, apellido, numeroCell, dni, direccion, mail, origen, domicilioOrigen, ocupacion);
+
+        this.diaCreacion = LocalDateTime.now();
+        this.pasajero = pasajero;
         this.habitacionReservada = habitacion;
         this.estado = EstadoReserva.PENDIENTE;
         this.diaEntrada = diaEntrada;
         this.diaSalida = diaSalida;
+        this.dniPasajero_json = pasajero.getDni();
+        this.idHabitacion_json = habitacion.getId();
+
         calcularNuevoMonto();
+
     }
 
     public Reserva(JSONObject json) {
         this.id = json.getInt("id");
-        this.pasajero = new Pasajero(json.getJSONObject("pasajero"));
-        this.habitacionReservada = new Habitacion(json.getJSONObject("habitacion"));
         this.diaEntrada = LocalDate.parse(json.getString("diaEntrada"));
         this.diaSalida = LocalDate.parse(json.getString("diaSalida"));
         this.diaCreacion = LocalDateTime.parse(json.getString("fechaCreacion"));
         this.estado = EstadoReserva.valueOf(json.getString("estado"));
         this.montoTotal = json.getDouble("montoTotal");
 
+        this.dniPasajero_json = json.getInt("dniPasajero");
+        this.idHabitacion_json = json.getInt("idHabitacion");
+
+        // Los objetos se setean en null, deben ser cargados por el HotelManager
+        this.pasajero = null;
+        this.habitacionReservada = null;
+
         if (this.id >= contador) {
             contador = this.id + 1;
         }
     }
 
-    public int getId() {return id;}
+    public void reconectarObjetos(Pasajero p, Habitacion h) {
+
+        this.pasajero = p;
+        this.habitacionReservada = h;
+
+    }
+
+    public int getDniPasajero_json() {
+        return dniPasajero_json;
+    }
+    public int getIdHabitacion_json() {
+        return idHabitacion_json;
+    }
+    public int getId() {
+        return this.id;
+    }
 
     public Pasajero getPasajero() {
         return pasajero;
     }
-
     public void setPasajero(Pasajero pasajero) {
         this.pasajero = pasajero;
     }
-
     public LocalDateTime getDiaCreacion() {
         return diaCreacion;
     }
-
     public LocalDate getDiaEntrada() {
         return diaEntrada;
     }
-
     public void setDiaEntrada(LocalDate diaEntrada) {
-        this.diaEntrada = diaEntrada;
-        calcularNuevoMonto();
+        this.diaEntrada = diaEntrada; calcularNuevoMonto();
     }
-
     public LocalDate getDiaSalida() {
         return diaSalida;
     }
-
     public void setDiaSalida(LocalDate diaSalida) {
         this.diaSalida = diaSalida;
     }
-
     public Habitacion getHabitacionReservada() {
         return habitacionReservada;
     }
-
     public void setHabitacionReservada(Habitacion habitacionReservada) {
-        this.habitacionReservada = habitacionReservada;
-        calcularNuevoMonto();
+        this.habitacionReservada = habitacionReservada; calcularNuevoMonto();
     }
-
     public double getMontoTotal() {
         return montoTotal;
+    }
+    public EstadoReserva getEstado() {
+        return estado;
     }
 
     public long calcularNoches() {
@@ -101,40 +122,24 @@ public class Reserva implements Guardable {
     }
 
     public void calcularNuevoMonto() {
+
         this.montoTotal = habitacionReservada.calcularPrecio((int) calcularNoches());
     }
 
 
 
-    public EstadoReserva verificarEstadoReserva(){
-
-        if (LocalDate.now().isBefore(this.diaEntrada) || this.estado == EstadoReserva.CONFIRMADA){
-
-            return this.estado;
-
-        }
-
-        this.estado = EstadoReserva.CANCELADA;
-        return this.estado;
-
-        //comprueba el estado de la reserva y lo devuelve
-
-    }
-
-    public void confirmarReserva(){
+    public void confirmarReserva() throws ReservaInvalidaException {
         if (this.estado != EstadoReserva.PENDIENTE) {
-            throw new IllegalStateException("Solo se pueden confirmar reservas PENDIENTES.");
+            throw new ReservaInvalidaException("Solo se pueden confirmar reservas PENDIENTES.");
         }
 
-        if (!LocalDate.now().isAfter(diaEntrada)){
+        // Si la fecha de hoy ES DESPUÉS de la fecha de entrada, la reserva caducó.
+        if (LocalDate.now().isAfter(diaEntrada)) {
             this.estado = EstadoReserva.CANCELADA;
-            throw new IllegalStateException("La fecha de inicio ya pasó. Reserva cancelada automáticamente.");
+            throw new ReservaInvalidaException("La fecha de inicio ya pasó. Reserva cancelada automáticamente.");
         }
 
         this.estado = EstadoReserva.CONFIRMADA;
-
-
-        //confirma que el check-in de la reserva se haga dentro del tiempo acordado
     }
 
     public void cancelarReserva () {
@@ -160,8 +165,11 @@ public class Reserva implements Guardable {
     public JSONObject toJSON() {
         JSONObject json = new JSONObject();
         json.put("id", this.id);
-        json.put("pasajero", this.pasajero.toJSON());
-        json.put("habitacion", this.habitacionReservada.toJSON());
+
+        // MODIFICADO: Guarda solo los IDs
+        json.put("dniPasajero", this.dniPasajero_json);
+        json.put("idHabitacion", this.idHabitacion_json);
+
         json.put("diaEntrada", this.diaEntrada.toString());
         json.put("diaSalida", this.diaSalida.toString());
         json.put("fechaCreacion", this.diaCreacion.toString());
@@ -185,10 +193,13 @@ public class Reserva implements Guardable {
     @Override
     public String toString() {
         long noches = ChronoUnit.DAYS.between(diaEntrada, diaSalida);
+        String pStr = (pasajero != null) ? pasajero.getNombre() : "DNI: " + dniPasajero_json;
+        String hStr = (habitacionReservada != null) ? ""+habitacionReservada.getNumero() : "ID: " + idHabitacion_json;
+
         return "Reserva{" +
                 "id=" + id +
-                ", Pasajero=" + pasajero.getNombre() +
-                ", habitacion=" + habitacionReservada.getNumero() +
+                ", Pasajero=" + pStr +
+                ", habitacion=" + hStr +
                 ", noches=" + noches +
                 ", estado=" + estado +
                 ", montoTotal=$" + montoTotal +

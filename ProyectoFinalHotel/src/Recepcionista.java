@@ -1,3 +1,4 @@
+import org.json.JSONObject;
 import Enum.TipoUsuario;
 
 public class Recepcionista extends Usuario {
@@ -9,6 +10,8 @@ public class Recepcionista extends Usuario {
                 username, password, TipoUsuario.RECEPCIONISTA, activo);
     }
 
-
+    public Recepcionista(JSONObject json) {
+        super(json);
+    }
 
 }
