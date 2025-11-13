@@ -30,11 +30,11 @@ public class Habitacion implements Guardable {
     public Habitacion(JSONObject json) {
         this.id = json.getInt("id");
         this.numero = json.getInt("numero");
-        this.tipoHabitacion = TipoHabitacion.valueOf(json.getString("tipo"));
+        this.tipoHabitacion = TipoHabitacion.valueOf(json.getString("tipoHabitacion"));
         this.piso = json.getInt("piso");
         this.capacidad = json.getInt("capacidad");
         this.precioPorNoche = json.getDouble("precioPorNoche");
-        this.estadoHabitacion = EstadoHabitacion.valueOf(json.getString("estado"));
+        this.estadoHabitacion = EstadoHabitacion.valueOf(json.getString("estadoHabitacion"));
         this.motivoNoDisponible = json.optString("motivoNoDisponible", "");
         if (this.id >= contador) {
             contador = this.id + 1;

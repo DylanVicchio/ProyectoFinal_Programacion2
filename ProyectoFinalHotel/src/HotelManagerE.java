@@ -9,6 +9,7 @@ import Exception.DatosInvalidosException;
 import Exception.HabitacionNoDisponibleException;
 import Exception.ReservaInvalidaException;
 import Exception.SeguridadException;
+import Enum.TipoHabitacion;
 
 
 public class HotelManagerE {
@@ -185,6 +186,38 @@ public class HotelManagerE {
 
     // --- 3. PERSISTENCIA (El Cerebro de Carga/Guardado) ---
 
+    public void inicializarDatos() {
+        System.out.println("Creando datos iniciales controlados...");
+        try {
+            // 1. Crear el admin "crudo" y agregarlo directamente (es una acción interna permitida)
+            Administrador adminTemporal = new Administrador("Admin", "Root", 123, 1, 123, "admin@hotel.com", "admin", "admin", true);
+            this.gestorUsuarios.agregar(adminTemporal);
+
+            // 2. Loguearse para que las demás operaciones de creación tengan permiso
+            login("admin", "admin");
+
+            // 3. Crear Habitaciones (No requiere permiso)
+            gestorHabitaciones.agregar(new Habitacion(101, TipoHabitacion.INDIVIDUAL, 1));
+            gestorHabitaciones.agregar(new Habitacion(102, TipoHabitacion.INDIVIDUAL, 1));
+            gestorHabitaciones.agregar(new Habitacion(201, TipoHabitacion.DOBLE, 2));
+            gestorHabitaciones.agregar(new Habitacion(301, TipoHabitacion.SUITE, 3));
+
+            // 4. Crear Pasajeros (No requiere permiso)
+            gestorPasajeros.agregar(new Pasajero("Juan", "Perez", 112233, 30123456, 123, "juan@mail.com", "Argentina", "Calle Falsa 123"));
+            gestorPasajeros.agregar(new Pasajero("Maria", "Gomez", 445566, 32654987, 456, "maria@mail.com", "Chile", "Av. Siempre Viva 742"));
+
+            // 5. Crear Recepcionista (Requiere permiso, por eso el login anterior)
+            crearUsuario("Recepcionista", "Uno", 778899, 40111222, 789, "recep@hotel.com", "recep", "recep", true, TipoUsuario.RECEPCIONISTA);
+
+            // 6. Guardar y cerrar la sesión temporal
+            guardarDatos();
+            logout();
+
+        } catch (Exception e) {
+            System.err.println("Error fatal creando datos iniciales: " + e.getMessage());
+        }
+    }
+
     public void guardarDatos() throws SeguridadException {
         checkAdmin(); // PERMISO (Solo Admin hace backup)
 
@@ -197,9 +230,9 @@ public class HotelManagerE {
         System.out.println("Datos guardados.");
     }
 
-    public void cargarDatos() {
+    public boolean cargarDatos() {
         System.out.println("Cargando datos...");
-
+        boolean cargado = false;
         // Limpia la caché interna de los gestores
         gestorHabitaciones.limpiar();
         gestorPasajeros.limpiar();
@@ -212,14 +245,23 @@ public class HotelManagerE {
         cargarPasajeros();
         cargarUsuarios();
 
-        // 2. Cargar Entidades con Dependencias
-        cargarReservas();
-        cargarOcupaciones();
+        if(gestorUsuarios.cantidad() > 0){
+            cargado = true;
+        }
 
-        // 3. Reconectar Historial de Pasajeros
-        reconectarHistorialPasajeros();
+
+        // 2. Cargar Entidades con Dependencias
+        if (cargado) {
+            cargarReservas();
+            cargarOcupaciones();
+
+            // 3. Reconectar Historial de Pasajeros
+            reconectarHistorialPasajeros();
+        }
 
         System.out.println("Datos cargados. " + gestorHabitaciones.cantidad() + " habitaciones, " + gestorPasajeros.cantidad() + " pasajeros, " + gestorUsuarios.cantidad() + " usuarios.");
+
+        return cargado;
     }
 
     private void cargarHabitaciones() {
