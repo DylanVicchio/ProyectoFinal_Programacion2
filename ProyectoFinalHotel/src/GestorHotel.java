@@ -66,4 +66,32 @@ public class GestorHotel<T extends Guardable> {
     public void limpiar() {
         elementos.clear();
     }
+
+    public boolean existeUsuarioConUsername(String username) {
+        for (T elemento : this.elementos) {
+
+            if (elemento instanceof Usuario) {
+                Usuario u = (Usuario) elemento;
+
+                if (u.getUsername().equalsIgnoreCase(username)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public boolean existeUsuarioConDNI(int dni) {
+        for (T elemento : this.elementos) {
+
+            if (elemento instanceof Usuario) {
+                Usuario u = (Usuario) elemento;
+
+                if (u.getDni() == dni) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 }

@@ -437,15 +437,49 @@ public class HotelManagerE {
 
     // Métodos de Admin
     public void crearUsuario(String nombre, String apellido, int numeroCell, int dni, int direccion, String mail, String username, String password, boolean activo, TipoUsuario tipo)
-            throws SeguridadException {
+            throws SeguridadException, DatosInvalidosException {
 
-        checkAdmin(); // comprueba que es admin
+        checkAdmin(); // PERMISO PARA ADMIN
 
-        if (tipo == TipoUsuario.ADMINISTRADOR) {
-            gestorUsuarios.agregar(new Administrador(nombre, apellido, numeroCell, dni, direccion, mail, username, password, activo));
-        } else if (tipo == TipoUsuario.RECEPCIONISTA) {
-            gestorUsuarios.agregar(new Recepcionista(nombre, apellido, numeroCell, dni, direccion, mail, username, password, activo));
+        // comprueba que no haya errores
+        if (nombre == null || nombre.trim().isEmpty() ||
+                apellido == null || apellido.trim().isEmpty() ||
+                username == null || username.trim().isEmpty() ||
+                password == null || password.trim().isEmpty()) {
+            throw new DatosInvalidosException("Los campos obligatorios (nombre, apellido, username, password) no pueden estar vacíos.");
         }
+
+        if (dni <= 0) {
+            throw new DatosInvalidosException("DNI inválido.");
+        }
+        if (tipo == null) {
+            throw new DatosInvalidosException("Debe especificar un tipo de usuario válido (ADMINISTRADOR o RECEPCIONISTA).");
+        }
+
+        if (mail == null || mail.trim().isEmpty() || !mail.contains("@")) {
+            throw new DatosInvalidosException("Email inválido.");
+        }
+
+        if (gestorUsuarios.existeUsuarioConUsername(username)) {
+            throw new DatosInvalidosException("El nombre de usuario '" + username + "' ya está registrado. Elija otro.");
+        }
+
+        // verifica si el DNI ya existe
+        if (gestorUsuarios.existeUsuarioConDNI(dni)) {
+            throw new DatosInvalidosException("Ya existe un usuario con el DNI " + dni + " registrado en el sistema.");
+        }
+
+        // crea usuario segun su tipo
+        Usuario nuevoUsuario = null;
+        if (tipo == TipoUsuario.ADMINISTRADOR) {
+             nuevoUsuario = new Administrador(nombre, apellido, numeroCell, dni, direccion, mail, username, password, activo);
+        } else if (tipo == TipoUsuario.RECEPCIONISTA) {
+            nuevoUsuario = new Recepcionista(nombre, apellido, numeroCell, dni, direccion, mail, username, password, activo);
+        }else{
+            throw new DatosInvalidosException("Tipo de usuario no compatible con la creación.");
+        }
+        // agrega usuario
+        gestorUsuarios.agregar(nuevoUsuario);
         System.out.println("Usuario " + username + " creado.");
     }
 
