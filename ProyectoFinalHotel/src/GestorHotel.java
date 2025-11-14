@@ -60,7 +60,7 @@ public class GestorHotel<T extends Guardable> {
     }
 
     public List<T> listarTodos() {
-        return new ArrayList<>(elementos); // Devuelve una copia
+        return new ArrayList<>(elementos);
     }
 
     public void limpiar() {

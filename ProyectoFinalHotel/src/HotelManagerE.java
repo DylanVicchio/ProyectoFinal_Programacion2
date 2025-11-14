@@ -36,6 +36,7 @@ public class HotelManagerE {
     // SEGURIDAD Y PERMISOS
 
     public boolean login(String username, String password) {
+        // busca un usuario dentro del gestor
         List<Usuario> usuarios = gestorUsuarios.listarTodos();
         for (Usuario u : usuarios) {
             if (u.autenticar(username, password)) {
@@ -49,6 +50,7 @@ public class HotelManagerE {
     }
 
     public void logout() {
+        // cierra la sesion del usuario actual
         this.usuarioLogueado = null;
         System.out.println("Sesión cerrada.");
     }
@@ -59,20 +61,21 @@ public class HotelManagerE {
 
     // Chequeos de permisos
     private void checkLogin() throws SeguridadException {
+        // confirma que haya un usuario
         if (usuarioLogueado == null) {
             throw new SeguridadException("Debe iniciar sesión.");
         }
     }
 
     private void checkRecepcionista() throws SeguridadException {
-        checkLogin();
+        checkLogin(); // confirma que haya un usuario y que sea recepcionista
         if (!(usuarioLogueado instanceof Recepcionista)) {
             throw new SeguridadException("Acción solo para Recepcionistas.");
         }
     }
 
     private void checkAdmin() throws SeguridadException {
-        checkLogin();
+        checkLogin(); // confirma que haya un usuario y que sea recepcionista
         if (!(usuarioLogueado instanceof Administrador)) {
             throw new SeguridadException("Acción solo para Administradores.");
         }
@@ -83,11 +86,11 @@ public class HotelManagerE {
     public Reserva realizarReserva(int dniPasajero, int numHabitacion, LocalDate inicio, LocalDate fin)
             throws DatosInvalidosException, HabitacionNoDisponibleException, SeguridadException {
 
-        checkRecepcionista(); // PERMISO
+        checkRecepcionista(); // PERMISO A RECEPCIONISTA
 
         Pasajero pasajero = gestorPasajeros.buscarPorDni(dniPasajero);
         Habitacion habitacion = gestorHabitaciones.buscarPorId(numHabitacion);
-
+        // busca pasajero por dni y habitacion por id y lluego confirma que existan/este disponible
         if (pasajero == null) throw new DatosInvalidosException("Pasajero no encontrado (DNI: " + dniPasajero + ")");
         if (habitacion == null)
             throw new DatosInvalidosException("Habitación no encontrada (Nro: " + numHabitacion + ")");
@@ -98,7 +101,7 @@ public class HotelManagerE {
         if (!verificarDisponibilidad(habitacion, inicio, fin)) {
             throw new HabitacionNoDisponibleException("Habitación no disponible para esas fechas.");
         }
-
+        // agrega la nueva reserva
         Reserva nuevaReserva = new Reserva(pasajero, inicio, fin, habitacion);
         gestorReservas.agregar(nuevaReserva);
         System.out.println("Reserva creada con éxito (ID: " + nuevaReserva.getId() + ")");
@@ -108,18 +111,18 @@ public class HotelManagerE {
     public Ocupacion realizarCheckIn(int idReserva)
             throws ReservaInvalidaException, HabitacionNoDisponibleException, SeguridadException {
 
-        checkRecepcionista(); // PERMISO
+        checkRecepcionista(); // PERMISO PARA RECEPCIONISTA
 
         Reserva reserva = gestorReservas.buscarPorId(idReserva);
         if (reserva == null) throw new ReservaInvalidaException("Reserva no encontrada.");
 
         reserva.confirmarReserva(); // Confirma o lanza excepción
 
-        Habitacion habitacion = reserva.getHabitacionReservada();
+        Habitacion habitacion = reserva.getHabitacionReservada(); // confirma que la habitacion este reserva
         if (!habitacion.estaDisponible() && habitacion.getEstadoHabitacion() != EstadoHabitacion.RESERVADO) {
             throw new HabitacionNoDisponibleException("Habitación no está en condiciones (Ocupada o Mantenimiento).");
         }
-
+        // agrega la ocupacion
         Ocupacion ocupacion = new Ocupacion(habitacion, reserva.getPasajero(), reserva);
         gestorOcupaciones.agregar(ocupacion);
 
@@ -130,15 +133,15 @@ public class HotelManagerE {
     public Ocupacion realizarCheckOut(int numHabitacion)
             throws DatosInvalidosException, SeguridadException {
 
-        checkRecepcionista(); // PERMISO
+        checkRecepcionista(); // PERMISO PARA RECEPCIONISTA
 
-        Habitacion habitacion = gestorHabitaciones.buscarPorId(numHabitacion);
+        Habitacion habitacion = gestorHabitaciones.buscarPorId(numHabitacion); // busca habitacion por id y luego pasa por verificaciones
         if (habitacion == null) throw new DatosInvalidosException("Habitación no encontrada.");
 
         if (habitacion.getEstadoHabitacion() != EstadoHabitacion.OCUPADO) {
             throw new DatosInvalidosException("La habitación " + numHabitacion + " no figura como ocupada.");
         }
-
+        // verifica si la ocupacion esta activa y si tiene la misma habitacion
         Ocupacion ocupacionActiva = null;
         List<Ocupacion> ocupaciones = gestorOcupaciones.listarTodos();
         for (Ocupacion o : ocupaciones) {
@@ -150,7 +153,7 @@ public class HotelManagerE {
 
         if (ocupacionActiva == null)
             throw new DatosInvalidosException("Error interno: No se encontró ocupación activa para la habitación " + numHabitacion);
-
+        // finaliza la ocupacion
         ocupacionActiva.finalizarOcupacion();
 
         System.out.println("Check-Out Exitoso. Habitación " + numHabitacion + ". Monto Total: $" + ocupacionActiva.getMontoPagado());
@@ -159,15 +162,16 @@ public class HotelManagerE {
 
     public void agregarConsumo(int numHabitacion, String descripcion, double monto) throws DatosInvalidosException, SeguridadException {
 
-        checkRecepcionista();
+        checkRecepcionista(); // PERMISO PARA RECEPCIONISTA
 
+        // comprueba que lo que llegue por parametro no sea erroneo
         if (descripcion == null || descripcion.trim().isEmpty())
             throw new DatosInvalidosException("Descripcion no puede estar vacia.");
 
         if (monto <= 0) {
             throw new DatosInvalidosException("Monto precio debe ser mayor a 0.");
         }
-
+        // busca la habitacion y verifica su estado
         Habitacion habitacion = gestorHabitaciones.buscarPorId(numHabitacion);
         if (habitacion == null) {
             throw new DatosInvalidosException("Habitacion no encontrada.");
@@ -176,7 +180,7 @@ public class HotelManagerE {
         if (habitacion.getEstadoHabitacion() != EstadoHabitacion.OCUPADO) {
             throw new DatosInvalidosException("La habitacion no esta ocupada actualmente.");
         }
-
+        // comprueba la habitacion de la ocupacion y la habitacion
         Ocupacion ocupacionActiva = null;
         List<Ocupacion> ocupaciones = gestorOcupaciones.listarTodos();
 
@@ -186,11 +190,11 @@ public class HotelManagerE {
                 break;
             }
         }
-
+        // comprueba que exista
         if (ocupacionActiva == null) {
             throw new DatosInvalidosException("No se encontro ocuppacion activa para la habitacion " + numHabitacion);
         }
-
+        // agrega un consumo a la ocupacion
         Consumo nuevoConsumo = new Consumo(descripcion, monto);
         ocupacionActiva.agregarConsumos(nuevoConsumo);
 
@@ -204,13 +208,13 @@ public class HotelManagerE {
     public List<Consumo> listarConsumosDeOcupacion(int numHabitacion)
             throws DatosInvalidosException, SeguridadException {
 
-        checkRecepcionista();
-
+        checkRecepcionista(); // PERMISO PARA RECEPCIONISTA
+        // busca la habitacion y verifica su estado
         Habitacion habitacion = gestorHabitaciones.buscarPorId(numHabitacion);
         if (habitacion == null) {
             throw new DatosInvalidosException("Habitación no encontrada.");
         }
-
+        // comprueba la habitacion de la ocupacion y la habitacion
         Ocupacion ocupacionActiva = null;
         List<Ocupacion> ocupaciones = gestorOcupaciones.listarTodos();
 
@@ -222,7 +226,7 @@ public class HotelManagerE {
                 break;
             }
         }
-
+        // comprueba que exista
         if (ocupacionActiva == null) {
             throw new DatosInvalidosException(
                     "No hay ocupación activa en la habitación " + numHabitacion
@@ -230,7 +234,7 @@ public class HotelManagerE {
         }
 
         List<Consumo> consumos = ocupacionActiva.getConsumos();
-
+        // comprueba que no este vacio y muestra los consumos
         if (consumos.isEmpty()) {
             System.out.println("No hay consumos registrados para esta ocupación.");
         } else {
@@ -246,6 +250,170 @@ public class HotelManagerE {
         }
 
         return consumos;
+    }
+
+    public Pasajero registrarPasajero(String nombre, String apellido, int numeroCell, int dni,
+                                      int direccion, String mail, String origen, String domicilioOrigen)
+            throws DatosInvalidosException, SeguridadException {
+        checkRecepcionista(); // PERMISO PARA RECEPCIONISTA
+
+        // verificaciones
+        if (nombre == null || nombre.trim().isEmpty()) {
+            throw new DatosInvalidosException("El nombre no puede estar vacío.");
+        }
+
+        if (apellido == null || apellido.trim().isEmpty()) {
+            throw new DatosInvalidosException("El apellido no puede estar vacío.");
+        }
+
+        if (dni <= 0) {
+            throw new DatosInvalidosException("DNI inválido: " + dni);
+        }
+
+        if (mail == null || mail.trim().isEmpty() || !mail.contains("@")) {
+            throw new DatosInvalidosException("Email inválido.");
+        }
+        Pasajero pasajeroExistente = gestorPasajeros.buscarPorDni(dni);
+        if (pasajeroExistente != null) {
+            throw new DatosInvalidosException("Ya existe un pasajero registrado con DNI");
+        }
+
+        // crea y agrega pasajero
+        Pasajero nuevoPasajero = new Pasajero(nombre, apellido, numeroCell, dni, direccion, mail, origen, domicilioOrigen);
+        gestorPasajeros.agregar(nuevoPasajero);
+
+        return nuevoPasajero;
+    }
+
+    public Pasajero buscarPasajero(int dni) throws SeguridadException {
+        checkRecepcionista();
+
+        Pasajero pasajero = gestorPasajeros.buscarPorDni(dni);
+
+        if (pasajero == null) {
+            System.out.println("No se encontró pasajero con DNI " + dni);
+            return null;
+        }
+
+        System.out.println("Informacion del Pasajero: ");
+        System.out.println("ID: " + pasajero.getId());
+        System.out.println("Nombre: " + pasajero.getNombre() + " " + pasajero.getApellido());
+        System.out.println("DNI: " + pasajero.getDni());
+        System.out.println("Mail: " + pasajero.getMail());
+        System.out.println("Direccion: " + pasajero.getDireccion());
+        System.out.println("Origen: " + pasajero.getOrigen());
+        System.out.println("Domicilio: " + pasajero.getDomicilioOrigen());
+        return pasajero;
+    }
+
+    public void listarTodosPasajeros() throws SeguridadException {
+        checkRecepcionista();
+
+        List<Pasajero> pasajeros = gestorPasajeros.listarTodos();
+
+        if (pasajeros.isEmpty()) {
+            System.out.println("No hay pasajeros registrados en el sistema.");
+            return;
+        }
+
+        System.out.println("Pasajeros Registrados: ");
+        for (Pasajero pasajero : pasajeros) {
+            System.out.println("ID: " + pasajero.getId());
+            System.out.println("Nombre: " + pasajero.getNombre() + " " + pasajero.getApellido());
+            System.out.println("DNI: " + pasajero.getDni());
+            System.out.println("Mail: " + pasajero.getMail());
+            System.out.println("Direccion: " + pasajero.getDireccion());
+            System.out.println("Origen: " + pasajero.getOrigen());
+            System.out.println("Domicilio: " + pasajero.getDomicilioOrigen());
+        }
+
+    }
+
+    public void actualizarPasajero(int dni, String nuevoEmail, int nuevoTelefono,
+                                   String nuevaDireccionOrigen)
+            throws DatosInvalidosException, SeguridadException {
+
+        checkRecepcionista();
+        // busca pasajero y verifica que exista
+        Pasajero pasajero = gestorPasajeros.buscarPorDni(dni);
+
+        if (pasajero == null) {
+            throw new DatosInvalidosException("No se encontró pasajero");
+        }
+
+        // actualizar datos
+        if (nuevoEmail != null && !nuevoEmail.trim().isEmpty()) {
+            if (!nuevoEmail.contains("@")) {
+                throw new DatosInvalidosException("Email inválido");
+            }
+            pasajero.setMail(nuevoEmail);
+        }
+
+        if (nuevoTelefono > 0) {
+            pasajero.setNumeroCell(nuevoTelefono);
+        } else {
+            throw new DatosInvalidosException("Numero invalido");
+        }
+
+        if (nuevaDireccionOrigen != null && !nuevaDireccionOrigen.trim().isEmpty()) {
+            pasajero.setDomicilioOrigen(nuevaDireccionOrigen);
+        } else {
+            throw new DatosInvalidosException("Domicilio invalido");
+        }
+
+    }
+
+    public void guardarDatosRecepcionista() throws SeguridadException {
+        checkRecepcionista(); // PERMISO PARA RECEPCIONISTA
+
+        gestorPasajeros.guardarEnArchivo();
+        gestorReservas.guardarEnArchivo();
+        gestorOcupaciones.guardarEnArchivo();
+        gestorHabitaciones.guardarEnArchivo();
+
+    }
+
+    public void cambiarEstadoHabitacion(int numHabitacion, EstadoHabitacion nuevoEstado, String motivo)
+            throws DatosInvalidosException, SeguridadException {
+
+        checkRecepcionista(); // PERMISO PARA RECEPCIONISTA
+
+        Habitacion habitacion = gestorHabitaciones.buscarPorId(numHabitacion);
+        if (habitacion == null) {
+            throw new DatosInvalidosException("Habitación no encontrada");
+        }
+
+        EstadoHabitacion estadoAnterior = habitacion.getEstadoHabitacion();
+
+        switch (nuevoEstado) {
+            case OCUPADO:
+                throw new DatosInvalidosException("No puede marcar una habitación como OCUPADA manualmente. Use la función de Check-In.");
+
+            case RESERVADO:
+                throw new DatosInvalidosException("No puede marcar una habitación como RESERVADA manualmente. Use la función de Crear Reserva.");
+
+            case LIMPIEZA:
+            case MANTENIMIENTO:
+            case FUERA_SERVICIO:
+                // estos estados requieren un motivo
+                if (motivo == null || motivo.trim().isEmpty()) {
+                    throw new DatosInvalidosException("Debe especificar un motivo para el estado " + nuevoEstado);
+                }
+                break;
+
+            case LIBRE:
+                // verificar que no haya ocupación activa
+                List<Ocupacion> ocupaciones = gestorOcupaciones.listarTodos();
+                for (Ocupacion o : ocupaciones) {
+                    if (o.getHabitacion() != null && o.getHabitacion().getId() == habitacion.getId() && o.verificarActiva()) {
+                        throw new DatosInvalidosException("No puede marcar como LIBRE una habitación con ocupación activa. Primero debe realizar el Check-Out.");
+                    }
+                }
+                motivo = ""; // LIBRE no necesita motivo
+                break;
+        }
+
+        habitacion.setEstadoHabitacion(nuevoEstado, motivo);
     }
 
     private boolean verificarDisponibilidad(Habitacion habitacion, LocalDate inicio, LocalDate fin) {
@@ -271,7 +439,7 @@ public class HotelManagerE {
     public void crearUsuario(String nombre, String apellido, int numeroCell, int dni, int direccion, String mail, String username, String password, boolean activo, TipoUsuario tipo)
             throws SeguridadException {
 
-        checkAdmin(); // PERMISO
+        checkAdmin(); // comprueba que es admin
 
         if (tipo == TipoUsuario.ADMINISTRADOR) {
             gestorUsuarios.agregar(new Administrador(nombre, apellido, numeroCell, dni, direccion, mail, username, password, activo));
@@ -286,7 +454,7 @@ public class HotelManagerE {
     public void inicializarDatos() {
         System.out.println("Creando datos iniciales controlados...");
         try {
-            // 1. Crear el admin "crudo" y agregarlo directamente (es una acción interna permitida)
+            // 1. Crear el admin "crudo" y agregarlo directamente
             Administrador adminTemporal = new Administrador("Admin", "Root", 123, 1, 123, "admin@hotel.com", "admin", "admin", true);
             this.gestorUsuarios.agregar(adminTemporal);
 
@@ -316,7 +484,7 @@ public class HotelManagerE {
     }
 
     public void guardarDatos() throws SeguridadException {
-        checkAdmin(); // PERMISO (Solo Admin hace backup)
+        checkAdmin(); // PERMISO Solo Admin hace backup
 
         System.out.println("Guardando datos...");
         gestorHabitaciones.guardarEnArchivo();
@@ -330,7 +498,7 @@ public class HotelManagerE {
     public boolean cargarDatos() {
         System.out.println("Cargando datos...");
         boolean cargado = false;
-        // Limpia la caché interna de los gestores
+        // Limpia los gestores
         gestorHabitaciones.limpiar();
         gestorPasajeros.limpiar();
         gestorReservas.limpiar();

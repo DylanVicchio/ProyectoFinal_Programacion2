@@ -25,7 +25,7 @@ public class JSONUtiles {
             return new JSONArray(contenido);
         } catch (IOException e) {
             System.err.println("Error al leer archivo JSON array: " + e.getMessage());
-            return new JSONArray(); // Retorna array vacío
+            return new JSONArray();
         }
     }
 }

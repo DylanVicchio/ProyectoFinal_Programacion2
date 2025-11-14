@@ -54,7 +54,6 @@ public class Reserva implements Guardable {
         this.dniPasajero_json = json.getInt("dniPasajero");
         this.idHabitacion_json = json.getInt("idHabitacion");
 
-        // Los objetos se setean en null, deben ser cargados por el HotelManager
         this.pasajero = null;
         this.habitacionReservada = null;
 
@@ -148,7 +147,6 @@ public class Reserva implements Guardable {
             throw new ReservaInvalidaException("Solo se pueden confirmar reservas PENDIENTES.");
         }
 
-        // Si la fecha de hoy ES DESPUÉS de la fecha de entrada, la reserva caducó.
         if (LocalDate.now().isAfter(diaEntrada)) {
             this.estado = EstadoReserva.CANCELADA;
             throw new ReservaInvalidaException("La fecha de inicio ya pasó. Reserva cancelada automáticamente.");
@@ -181,7 +179,7 @@ public class Reserva implements Guardable {
         JSONObject json = new JSONObject();
         json.put("id", this.id);
 
-        // MODIFICADO: Guarda solo los IDs
+
         json.put("dniPasajero", this.dniPasajero_json);
         json.put("idHabitacion", this.idHabitacion_json);
 

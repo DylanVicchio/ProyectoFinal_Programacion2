@@ -3,7 +3,7 @@ import java.util.Scanner;
 
 import Enum.TipoUsuario;
 import Exception.DatosInvalidosException;
-
+import Enum.EstadoHabitacion;
 //TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 public class Main {
@@ -67,14 +67,13 @@ public class Main {
             try {
                 switch (opcion) {
                     case "1":
-                        manager.guardarDatos();
+                        manager.guardarDatos(); // guarda los datos en JSON
                         break;
                     case "2":
-                        crearNuevoUsuario(manager, scanner);
+                        crearNuevoUsuario(manager, scanner); // crea un Usuario
                         break;
                     case "3":
                         manager.logout();
-                        System.out.println("Sesión cerrada.");
                         break;
                     default:
                         System.out.println("Opción inválida.");
@@ -128,12 +127,20 @@ public class Main {
 
     private static void menuRecepcionista(HotelManagerE manager, Scanner scanner) {
         String opcion = "";
-        while (!opcion.equals("4")) {
+        while (!opcion.equals("12")) {
             System.out.println("\n--- MENÚ RECEPCIONISTA ---");
             System.out.println("1. Realizar Reserva");
             System.out.println("2. Realizar Check-In");
             System.out.println("3. Realizar Check-Out");
-            System.out.println("4. Logout");
+            System.out.println("4. Agregar Consumo");
+            System.out.println("5. Listar Consumo de ocupacion");
+            System.out.println("6. Registrar nuevo Pasajero");
+            System.out.println("7. Buscar pasajero por DNI");
+            System.out.println("8. Listar todos los pasajeros");
+            System.out.println("9. Actualizar Pasajero");
+            System.out.println("10. Cambiar estado de Habitacion");
+            System.out.println("11. Guardar datos");
+            System.out.println("12. Salir");
             System.out.print("Opción: ");
             opcion = scanner.nextLine();
 
@@ -178,6 +185,102 @@ public class Main {
                         int habID = Integer.parseInt(scanner.nextLine());
                         manager.listarConsumosDeOcupacion(habID);
                     case "6":
+                        System.out.println("\nREGISTRAR NUEVO PASAJERO");
+                        System.out.print("Nombre: ");
+                        String nombre = scanner.nextLine();
+                        System.out.print("Apellido: ");
+                        String apellido = scanner.nextLine();
+                        System.out.print("DNI: ");
+                        int dni1 = Integer.parseInt(scanner.nextLine());
+                        System.out.print("Número de Celular: ");
+                        int numCell = Integer.parseInt(scanner.nextLine());
+                        System.out.print("Dirección (Número): ");
+                        int dir = Integer.parseInt(scanner.nextLine());
+                        System.out.print("Email: ");
+                        String mail = scanner.nextLine();
+                        System.out.print("Origen (Ciudad/País): ");
+                        String origen = scanner.nextLine();
+                        System.out.print("Domicilio de Origen: ");
+                        String domOrigen = scanner.nextLine();
+
+                        manager.registrarPasajero(nombre, apellido,numCell,dni1,dir,mail,origen,domOrigen);
+                        break;
+                    case "7":
+                        System.out.print("\nIngrese DNI del pasajero: ");
+                        int dniBuscar = Integer.parseInt(scanner.nextLine());
+                        manager.buscarPasajero(dniBuscar);
+                        break;
+                    case "8":
+                        manager.listarTodosPasajeros();
+                        break;
+                    case "9":
+                        System.out.print("\nIngrese DNI del pasajero: ");
+                        int dniBuscado = Integer.parseInt(scanner.nextLine());
+                        System.out.print("Ingrese nuevo mail: ");
+                        String nuevoMail = scanner.nextLine();
+                        System.out.print("Ingrese nuevo telefono: ");
+                        int nuevoTelefono = Integer.parseInt(scanner.nextLine());
+                        System.out.print("Nueva domicilio: ");
+                        String nuevaDireccion = scanner.nextLine();
+                        manager.actualizarPasajero(dniBuscado, nuevoMail, nuevoTelefono, nuevaDireccion );
+                        break;
+                    case "10":
+                        System.out.print("\nIngrese ID de habitacion: ");
+                        int idBuscado = Integer.parseInt(scanner.nextLine());
+                        System.out.println("\nSeleccione el nuevo estado:");
+                        System.out.println("  1. LIBRE (Disponible)");
+                        System.out.println("  2. LIMPIEZA");
+                        System.out.println("  3. MANTENIMIENTO");
+                        System.out.println("  4. FUERA_SERVICIO");
+                        System.out.print("Opción de Estado: ");
+                        String optEstado = scanner.nextLine();
+
+                        EstadoHabitacion nuevoEstado = null;
+                        String motivo = "";
+
+                        // convierte la opción a Enum y maneja el motivo
+                        switch (optEstado) {
+                            case "1":
+                                nuevoEstado = EstadoHabitacion.LIBRE;
+                                motivo = ""; // no necesita motivo
+                                break;
+                            case "2":
+                                nuevoEstado = EstadoHabitacion.LIMPIEZA;
+                                System.out.print("Ingrese motivo de limpieza: ");
+                                motivo = scanner.nextLine();
+                                break;
+                            case "3":
+                                nuevoEstado = EstadoHabitacion.MANTENIMIENTO;
+                                System.out.print("Ingrese motivo de mantenimiento: ");
+                                motivo = scanner.nextLine();
+                                break;
+                            case "4":
+                                nuevoEstado = EstadoHabitacion.FUERA_SERVICIO;
+                                System.out.print("Ingrese motivo de fuera de servicio: ");
+                                motivo = scanner.nextLine();
+                                break;
+                            default:
+                                // si la opción no es válida, lanzamos una excepción
+                                throw new DatosInvalidosException("Opción de estado inválida.");
+                        }
+                        manager.cambiarEstadoHabitacion(idBuscado, nuevoEstado, motivo);
+                        System.out.println("Estado de la habitacion" + idBuscado + "cambiado");
+                        break;
+                    case "11":
+                        manager.guardarDatosRecepcionista();
+                        break;
+                    case "12":
+                        try {
+                            System.out.println("\nGuardando cambios antes de cerrar sesión...");
+                            manager.guardarDatosRecepcionista();
+                        } catch (Exception e) {
+                            System.err.println("Error al guardar: " + e.getMessage());
+                            System.out.print("¿Desea cerrar sesión de todos modos? (S/N): ");
+                            String respuesta = scanner.nextLine();
+                            if (!respuesta.equalsIgnoreCase("S")) {
+                                continue; // no cierra sesión
+                            }
+                        }
                         manager.logout();
                         System.out.println("Sesión cerrada.");
                         break;

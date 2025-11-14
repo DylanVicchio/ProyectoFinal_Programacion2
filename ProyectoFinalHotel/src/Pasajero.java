@@ -19,13 +19,15 @@ public class Pasajero extends Persona implements Guardable {
     }
 
     public Pasajero(JSONObject json) {
-        super(json); // Carga datos de Persona
+        super(json);
         this.origen = json.getString("origen");
         this.domicilioOrigen = json.getString("domicilioOrigen");
         this.historialEstadia = new ArrayList<>();
-        // El historial (idsHistorial) se carga en el HotelManager
     }
 
+    public String getOrigen() {
+        return origen;
+    }
 
     public void setOrigen(String origen) {
         this.origen = origen;
