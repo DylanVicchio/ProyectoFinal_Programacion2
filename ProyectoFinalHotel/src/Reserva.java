@@ -27,9 +27,7 @@ public class Reserva implements Guardable {
 
     public Reserva(Pasajero pasajero, LocalDate diaEntrada, LocalDate diaSalida, Habitacion habitacion) {
 
-        this.id = contador;
-        contador++;
-
+        this.id = contador++;
         this.diaCreacion = LocalDateTime.now();
         this.pasajero = pasajero;
         this.habitacionReservada = habitacion;

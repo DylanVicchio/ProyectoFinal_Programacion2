@@ -382,6 +382,53 @@ public class HotelManagerE {
 
     }
 
+    public void listarReserva() throws SeguridadException{
+        checkRecepcionista();
+
+        List<Reserva> reservas = gestorReservas.listarTodos();
+
+        if(reservas.isEmpty()){
+            System.out.println("No hay reservas registradas en el sistema.");
+            return;
+        }
+
+        System.out.println("Reservas registradas");
+        for(Reserva reserva : reservas){
+            System.out.println("-------------------");
+            System.out.println("ID: " + reserva.getId());
+            System.out.println("Dia creacion: " + reserva.getDiaCreacion());
+            System.out.println("Pasajero: " + reserva.getPasajero().getDni());
+            System.out.println("Habitacion reservada: " + reserva.getHabitacionReservada().getId());
+            System.out.println("Estado: " + reserva.getEstado().getDescripcion());
+            System.out.println("Dia entrada: " + reserva.getDiaEntrada().toString());
+            System.out.println("Dia salida: " + reserva.getDiaSalida().toString());
+            System.out.println("Monto: " + reserva.getMontoTotal());
+            System.out.println("-------------------");
+        }
+    }
+
+    public Reserva buscarReserva(int id) throws SeguridadException{
+        checkRecepcionista();
+
+        Reserva reserva = gestorReservas.buscarPorId(id);
+
+        if (reserva == null) {
+            System.out.println("No se encontró la reserva con id: " + id);
+            return null;
+        }
+
+        System.out.println("Informacion de la reserva: ");
+        System.out.println("ID: " + reserva.getId());
+        System.out.println("Dia creacion: " + reserva.getDiaCreacion());
+        System.out.println("Pasajero: " + reserva.getPasajero().getDni());
+        System.out.println("Habitacion reservada: " + reserva.getHabitacionReservada().getId());
+        System.out.println("Estado: " + reserva.getEstado().getDescripcion());
+        System.out.println("Dia entrada: " + reserva.getDiaEntrada().toString());
+        System.out.println("Dia salida: " + reserva.getDiaSalida().toString());
+        System.out.println("Monto: " + reserva.getMontoTotal());
+        return reserva;
+    }
+
     public void guardarDatosRecepcionista() throws SeguridadException {
         checkRecepcionista(); // PERMISO PARA RECEPCIONISTA
 

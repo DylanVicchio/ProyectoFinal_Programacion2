@@ -1,8 +1,18 @@
 package Enum;
 
 public enum EstadoReserva {
-    PENDIENTE,
-    CANCELADA,
-    CONFIRMADA,
-    COMPLETADA
+    PENDIENTE("Pendiente"),
+    CANCELADA("Cancelada"),
+    CONFIRMADA("Confirmada"),
+    COMPLETADA("Completada");
+
+    private String descripcion;
+
+    EstadoReserva(String descripcion) {
+        this.descripcion = descripcion;
+    }
+
+    public String getDescripcion() {
+        return descripcion;
+    }
 }
