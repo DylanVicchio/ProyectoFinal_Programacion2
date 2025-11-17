@@ -104,6 +104,7 @@ public class HotelManagerE {
         // agrega la nueva reserva
         Reserva nuevaReserva = new Reserva(pasajero, inicio, fin, habitacion);
         gestorReservas.agregar(nuevaReserva);
+        gestorReservas.guardarEnArchivo();
         System.out.println("Reserva creada con éxito (ID: " + nuevaReserva.getId() + ")");
         return nuevaReserva;
     }
@@ -116,6 +117,19 @@ public class HotelManagerE {
         Reserva reserva = gestorReservas.buscarPorId(idReserva);
         if (reserva == null) throw new ReservaInvalidaException("Reserva no encontrada.");
 
+        LocalDate hoy = LocalDate.now();
+        if (hoy.isBefore(reserva.getDiaEntrada())) {
+            throw new ReservaInvalidaException(
+                    "No se puede hacer check-in antes de la fecha de entrada. " +
+                            "Fecha de entrada: " + reserva.getDiaEntrada()
+            );
+        }
+
+        if (hoy.isAfter(reserva.getDiaSalida())) {
+            throw new ReservaInvalidaException(
+                    "La reserva ya expiró. Fecha de salida era: " + reserva.getDiaSalida()
+            );
+        }
         reserva.confirmarReserva(); // Confirma o lanza excepción
 
         Habitacion habitacion = reserva.getHabitacionReservada(); // confirma que la habitacion este reserva
@@ -125,7 +139,7 @@ public class HotelManagerE {
         // agrega la ocupacion
         Ocupacion ocupacion = new Ocupacion(habitacion, reserva.getPasajero(), reserva);
         gestorOcupaciones.agregar(ocupacion);
-
+        gestorOcupaciones.guardarEnArchivo();
         System.out.println("Check-In exitoso. Ocupación ID: " + ocupacion.getId());
         return ocupacion;
     }
@@ -157,6 +171,7 @@ public class HotelManagerE {
         ocupacionActiva.finalizarOcupacion();
 
         System.out.println("Check-Out Exitoso. Habitación " + numHabitacion + ". Monto Total: $" + ocupacionActiva.getMontoPagado());
+        gestorOcupaciones.guardarEnArchivo();
         return ocupacionActiva;
     }
 
@@ -197,7 +212,7 @@ public class HotelManagerE {
         // agrega un consumo a la ocupacion
         Consumo nuevoConsumo = new Consumo(descripcion, monto);
         ocupacionActiva.agregarConsumos(nuevoConsumo);
-
+        gestorOcupaciones.guardarEnArchivo();
         System.out.println("  Consumo agregado exitosamente");
         System.out.println("  Habitación: " + numHabitacion);
         System.out.println("  Descripción: " + descripcion);
@@ -281,7 +296,8 @@ public class HotelManagerE {
         // crea y agrega pasajero
         Pasajero nuevoPasajero = new Pasajero(nombre, apellido, numeroCell, dni, direccion, mail, origen, domicilioOrigen);
         gestorPasajeros.agregar(nuevoPasajero);
-
+        System.out.println("Pasajero agregado");
+        gestorPasajeros.guardarEnArchivo();
         return nuevoPasajero;
     }
 
@@ -318,6 +334,7 @@ public class HotelManagerE {
 
         System.out.println("Pasajeros Registrados: ");
         for (Pasajero pasajero : pasajeros) {
+            System.out.println("-------------------");
             System.out.println("ID: " + pasajero.getId());
             System.out.println("Nombre: " + pasajero.getNombre() + " " + pasajero.getApellido());
             System.out.println("DNI: " + pasajero.getDni());
@@ -325,6 +342,7 @@ public class HotelManagerE {
             System.out.println("Direccion: " + pasajero.getDireccion());
             System.out.println("Origen: " + pasajero.getOrigen());
             System.out.println("Domicilio: " + pasajero.getDomicilioOrigen());
+            System.out.println("-------------------");
         }
 
     }
@@ -360,6 +378,7 @@ public class HotelManagerE {
         } else {
             throw new DatosInvalidosException("Domicilio invalido");
         }
+        gestorPasajeros.guardarEnArchivo();
 
     }
 
@@ -385,6 +404,14 @@ public class HotelManagerE {
 
         EstadoHabitacion estadoAnterior = habitacion.getEstadoHabitacion();
 
+        if (estadoAnterior == EstadoHabitacion.OCUPADO &&
+                nuevoEstado != EstadoHabitacion.LIBRE) {
+            throw new DatosInvalidosException(
+                    "No puede cambiar el estado de una habitación ocupada. " +
+                            "Primero debe realizar el Check-Out."
+            );
+        }
+
         switch (nuevoEstado) {
             case OCUPADO:
                 throw new DatosInvalidosException("No puede marcar una habitación como OCUPADA manualmente. Use la función de Check-In.");
@@ -402,18 +429,30 @@ public class HotelManagerE {
                 break;
 
             case LIBRE:
-                // verificar que no haya ocupación activa
+                // verificar que no haya ocupación y reserva activa
                 List<Ocupacion> ocupaciones = gestorOcupaciones.listarTodos();
                 for (Ocupacion o : ocupaciones) {
                     if (o.getHabitacion() != null && o.getHabitacion().getId() == habitacion.getId() && o.verificarActiva()) {
                         throw new DatosInvalidosException("No puede marcar como LIBRE una habitación con ocupación activa. Primero debe realizar el Check-Out.");
                     }
                 }
-                motivo = ""; // LIBRE no necesita motivo
+                List<Reserva> reservas = gestorReservas.listarTodos();
+                for (Reserva r : reservas) {
+                    if (r.getHabitacionReservada().getId() == habitacion.getId() &&
+                            (r.getEstado() == EstadoReserva.CONFIRMADA ||
+                                    r.getEstado() == EstadoReserva.PENDIENTE)) {
+                        throw new DatosInvalidosException(
+                                "No puede marcar como LIBRE una habitación con reservas pendientes. ID Reserva: " + r.getId()
+                        );
+                    }
+                }
+                motivo = "";
                 break;
         }
 
         habitacion.setEstadoHabitacion(nuevoEstado, motivo);
+        gestorHabitaciones.guardarEnArchivo();
+
     }
 
     private boolean verificarDisponibilidad(Habitacion habitacion, LocalDate inicio, LocalDate fin) {
@@ -427,7 +466,7 @@ public class HotelManagerE {
                     (r.getEstado() == EstadoReserva.CONFIRMADA || r.getEstado() == EstadoReserva.PENDIENTE)) {
 
                 // Lógica de solapamiento
-                if (inicio.isBefore(r.getDiaSalida()) && fin.isAfter(r.getDiaEntrada())) {
+                if (!(fin.isBefore(r.getDiaEntrada()) || inicio.isAfter(r.getDiaSalida()))) {
                     return false; // Hay solapamiento
                 }
             }
@@ -480,6 +519,7 @@ public class HotelManagerE {
         }
         // agrega usuario
         gestorUsuarios.agregar(nuevoUsuario);
+        gestorUsuarios.guardarEnArchivo();
         System.out.println("Usuario " + username + " creado.");
     }
 
