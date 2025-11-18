@@ -1,12 +1,1 @@
-[
-  {
-    "dniPasajero": 30123456,
-    "estado": "COMPLETADA",
-    "diaEntrada": "2026-12-15",
-    "fechaCreacion": "2025-11-13T18:36:54.047173500",
-    "id": 1,
-    "diaSalida": "2027-01-01",
-    "idHabitacion": 1,
-    "montoTotal": 17000
-  }
-]
+[{"dniPasajero":32654987,"estado":"COMPLETADA","diaEntrada":"2025-11-18","fechaCreacion":"2025-11-18T17:19:43.135494800","id":1,"diaSalida":"2025-11-19","idHabitacion":1,"montoTotal":1000},{"dniPasajero":32654987,"estado":"PENDIENTE","diaEntrada":"2025-11-18","fechaCreacion":"2025-11-18T17:45:31.643581300","id":2,"diaSalida":"2025-11-19","idHabitacion":1,"montoTotal":1000},{"dniPasajero":30123456,"estado":"CONFIRMADA","diaEntrada":"2025-11-18","fechaCreacion":"2025-11-18T18:01:56.706267400","id":3,"diaSalida":"2025-11-19","idHabitacion":2,"montoTotal":1000},{"dniPasajero":30123456,"estado":"PENDIENTE","diaEntrada":"2025-11-30","fechaCreacion":"2025-11-18T18:06:38.522828300","id":4,"diaSalida":"2025-12-01","idHabitacion":4,"montoTotal":6000}]

@@ -22,7 +22,7 @@ public class Ocupacion implements Guardable {
     private LocalDateTime fechaCheckOut;
     private double montoPagado;
     private final ArrayList<Consumo> consumos;
-    private final int idHabitacion_json;
+    private int idHabitacion_json;
     private final int dniPasajero_json;
     private final int idReserva_json;
 
@@ -142,22 +142,23 @@ public class Ocupacion implements Guardable {
         this.montoPagado = montoPagado;
     }
 
-    public int getDuracion() {
+    public double getDuracion() {
         LocalDateTime fin;
         if (fechaCheckOut == null) {
             fin = LocalDateTime.now();
         } else {
             fin = fechaCheckOut;
         }
-        return (int) ChronoUnit.DAYS.between(fechaCheckIn, fin);
+        return ChronoUnit.DAYS.between(fechaCheckIn, fin);
     }
 
     public void cambiarHabitacion(Habitacion nuevaHabitacion) {
+        this.idHabitacion_json = nuevaHabitacion.getId();
         this.habitacion = nuevaHabitacion;
     }
 
     public double calcularTotal() {
-        int noches = getDuracion();
+        int noches = ( int ) getDuracion();
         if (noches <= 0) {
             noches = 1;
         }

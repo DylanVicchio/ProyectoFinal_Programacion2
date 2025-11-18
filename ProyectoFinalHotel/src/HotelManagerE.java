@@ -2,7 +2,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 import Enum.EstadoHabitacion;
@@ -13,7 +12,6 @@ import Exception.HabitacionNoDisponibleException;
 import Exception.ReservaInvalidaException;
 import Exception.SeguridadException;
 import Enum.TipoHabitacion;
-import Exception.OcupacionNoEncontradaException;
 
 
 public class HotelManagerE {
@@ -85,7 +83,7 @@ public class HotelManagerE {
 
     // Check-In, Check-Out y manejo del corto
 
-    public Reserva realizarReserva(int dniPasajero, int numHabitacion, LocalDate inicio, LocalDate fin)
+    public void realizarReserva(int dniPasajero, int numHabitacion, LocalDate inicio, LocalDate fin)
             throws DatosInvalidosException, HabitacionNoDisponibleException, SeguridadException {
 
         checkRecepcionista(); // PERMISO A RECEPCIONISTA
@@ -100,6 +98,10 @@ public class HotelManagerE {
             throw new DatosInvalidosException("Fechas inválidas.");
         }
 
+        if (inicio.equals(fin)) {
+            throw new DatosInvalidosException("Las fechas de entrada y salida no pueden ser iguales. Mínimo 1 noche.");
+        }
+
         if (!verificarDisponibilidad(habitacion, inicio, fin)) {
             throw new HabitacionNoDisponibleException("Habitación no disponible para esas fechas.");
         }
@@ -108,10 +110,10 @@ public class HotelManagerE {
         gestorReservas.agregar(nuevaReserva);
         gestorReservas.guardarEnArchivo();
         System.out.println("Reserva creada con éxito (ID: " + nuevaReserva.getId() + ")");
-        return nuevaReserva;
+
     }
 
-    public Ocupacion realizarCheckIn(int idReserva)
+    public void realizarCheckIn(int idReserva)
             throws ReservaInvalidaException, HabitacionNoDisponibleException, SeguridadException {
 
         checkRecepcionista(); // PERMISO PARA RECEPCIONISTA
@@ -143,10 +145,10 @@ public class HotelManagerE {
         gestorOcupaciones.agregar(ocupacion);
         gestorOcupaciones.guardarEnArchivo();
         System.out.println("Check-In exitoso. Ocupación ID: " + ocupacion.getId());
-        return ocupacion;
+
     }
 
-    public Ocupacion realizarCheckOut(int numHabitacion)
+    public void realizarCheckOut(int numHabitacion)
             throws DatosInvalidosException, SeguridadException {
 
         checkRecepcionista(); // PERMISO PARA RECEPCIONISTA
@@ -174,7 +176,7 @@ public class HotelManagerE {
 
         System.out.println("Check-Out Exitoso. Habitación " + numHabitacion + ". Monto Total: $" + ocupacionActiva.getMontoPagado());
         gestorOcupaciones.guardarEnArchivo();
-        return ocupacionActiva;
+
     }
 
     public void agregarConsumo(int numHabitacion, String descripcion, double monto) throws DatosInvalidosException, SeguridadException {
@@ -222,7 +224,7 @@ public class HotelManagerE {
         System.out.println("  Total de consumos en la ocupación: " + ocupacionActiva.getConsumos().size());
     }
 
-    public List<Consumo> listarConsumosDeOcupacion(int numHabitacion)
+    public void listarConsumosDeOcupacion(int numHabitacion)
             throws DatosInvalidosException, SeguridadException {
 
         checkRecepcionista(); // PERMISO PARA RECEPCIONISTA
@@ -266,10 +268,10 @@ public class HotelManagerE {
             System.out.println("=======================================\n");
         }
 
-        return consumos;
+
     }
 
-    public Pasajero registrarPasajero(String nombre, String apellido, int numeroCell, int dni,
+    public void registrarPasajero(String nombre, String apellido, int numeroCell, int dni,
                                       int direccion, String mail, String origen, String domicilioOrigen)
             throws DatosInvalidosException, SeguridadException {
         checkRecepcionista(); // PERMISO PARA RECEPCIONISTA
@@ -279,16 +281,27 @@ public class HotelManagerE {
             throw new DatosInvalidosException("El nombre no puede estar vacío.");
         }
 
+        if (!nombre.matches("[a-zA-ZáéíóúÁÉÍÓÚñÑ\\s]+")) {
+            throw new DatosInvalidosException("El nombre no puede contener números o caracteres especiales.");
+        }
+
         if (apellido == null || apellido.trim().isEmpty()) {
             throw new DatosInvalidosException("El apellido no puede estar vacío.");
+        }
+
+        if (!apellido.matches("[a-zA-ZáéíóúÁÉÍÓÚñÑ\\s]+")) {
+            throw new DatosInvalidosException("El apellido no puede contener números o caracteres especiales.");
         }
 
         if (dni <= 0) {
             throw new DatosInvalidosException("DNI inválido: " + dni);
         }
 
-        if (mail == null || mail.trim().isEmpty() || !mail.contains("@")) {
+        if (mail == null || mail.trim().isEmpty()) {
             throw new DatosInvalidosException("Email inválido.");
+        }
+        if (!mail.matches("^[\\w.-]+@[\\w.-]+\\.[a-zA-Z]{2,}$")) {
+            throw new DatosInvalidosException("Email inválido. Debe tener formato: usuario@mail.com");
         }
         Pasajero pasajeroExistente = gestorPasajeros.buscarPorDni(dni);
         if (pasajeroExistente != null) {
@@ -300,17 +313,17 @@ public class HotelManagerE {
         gestorPasajeros.agregar(nuevoPasajero);
         System.out.println("Pasajero agregado");
         gestorPasajeros.guardarEnArchivo();
-        return nuevoPasajero;
+
     }
 
-    public Pasajero buscarPasajero(int dni) throws SeguridadException {
+    public void buscarPasajero(int dni) throws SeguridadException {
         checkRecepcionista();
 
         Pasajero pasajero = gestorPasajeros.buscarPorDni(dni);
 
         if (pasajero == null) {
             System.out.println("No se encontró pasajero con DNI " + dni);
-            return null;
+            return;
         }
 
         System.out.println("Informacion del Pasajero: ");
@@ -321,7 +334,7 @@ public class HotelManagerE {
         System.out.println("Direccion: " + pasajero.getDireccion());
         System.out.println("Origen: " + pasajero.getOrigen());
         System.out.println("Domicilio: " + pasajero.getDomicilioOrigen());
-        return pasajero;
+
     }
 
     public void listarTodosPasajeros() throws SeguridadException {
@@ -363,8 +376,8 @@ public class HotelManagerE {
 
         // actualizar datos
         if (nuevoEmail != null && !nuevoEmail.trim().isEmpty()) {
-            if (!nuevoEmail.contains("@")) {
-                throw new DatosInvalidosException("Email inválido");
+            if (!nuevoEmail.matches("^[\\w.-]+@[\\w.-]+\\.[a-zA-Z]{2,}$")) {
+                throw new DatosInvalidosException("Email inválido. Debe tener formato: usuario@mail.com");
             }
             pasajero.setMail(nuevoEmail);
         }
@@ -380,6 +393,7 @@ public class HotelManagerE {
         } else {
             throw new DatosInvalidosException("Domicilio invalido");
         }
+        System.out.println("Pasajero actualizado");
         gestorPasajeros.guardarEnArchivo();
 
     }
@@ -399,8 +413,8 @@ public class HotelManagerE {
             System.out.println("-------------------");
             System.out.println("ID: " + reserva.getId());
             System.out.println("Dia creacion: " + reserva.getDiaCreacion());
-            System.out.println("Pasajero: " + reserva.getPasajero().getDni());
-            System.out.println("Habitacion reservada: " + reserva.getHabitacionReservada().getId());
+            System.out.println("Pasajero Dni: " + reserva.getPasajero().getDni() + " Nombre: " + reserva.getPasajero().getNombre() );
+            System.out.println("Habitacion reservada ID: " + reserva.getHabitacionReservada().getId() + " Num: " + reserva.getHabitacionReservada().getNumero());
             System.out.println("Estado: " + reserva.getEstado().getDescripcion());
             System.out.println("Dia entrada: " + reserva.getDiaEntrada().toString());
             System.out.println("Dia salida: " + reserva.getDiaSalida().toString());
@@ -409,26 +423,26 @@ public class HotelManagerE {
         }
     }
 
-    public Reserva buscarReserva(int id) throws SeguridadException{
+    public void buscarReserva(int id) throws SeguridadException{
         checkRecepcionista();
 
         Reserva reserva = gestorReservas.buscarPorId(id);
 
         if (reserva == null) {
             System.out.println("No se encontró la reserva con id: " + id);
-            return null;
+            return;
         }
 
         System.out.println("Informacion de la reserva: ");
         System.out.println("ID: " + reserva.getId());
         System.out.println("Dia creacion: " + reserva.getDiaCreacion());
-        System.out.println("Pasajero: " + reserva.getPasajero().getDni());
-        System.out.println("Habitacion reservada: " + reserva.getHabitacionReservada().getId());
+        System.out.println("Pasajero Dni: " + reserva.getPasajero().getDni() + " Nombre: " + reserva.getPasajero().getNombre() );
+        System.out.println("Habitacion reservada ID: " + reserva.getHabitacionReservada().getId() + " Num: " + reserva.getHabitacionReservada().getNumero());
         System.out.println("Estado: " + reserva.getEstado().getDescripcion());
         System.out.println("Dia entrada: " + reserva.getDiaEntrada().toString());
         System.out.println("Dia salida: " + reserva.getDiaSalida().toString());
         System.out.println("Monto: " + reserva.getMontoTotal());
-        return reserva;
+
     }
 
     public void cambiarHabitacionOcupacion(int idHabitacionActual, int idHabitacionNueva)
@@ -438,11 +452,11 @@ public class HotelManagerE {
 
         Habitacion habitacionActual = gestorHabitaciones.buscarPorId(idHabitacionActual);
         if (habitacionActual == null) {
-            throw new DatosInvalidosException("Habitación actual no encontrada (ID: " + idHabitacionNueva + ")");
+            throw new DatosInvalidosException("Habitación actual no encontrada (ID: " + idHabitacionActual + ")");
         }
 
         if (habitacionActual.getEstadoHabitacion() != EstadoHabitacion.OCUPADO) {
-            throw new DatosInvalidosException("La habitación " + idHabitacionNueva + " no está ocupada actualmente.");
+            throw new DatosInvalidosException("La habitación " + idHabitacionActual + " no está ocupada actualmente.");
         }
 
         Ocupacion ocupacionActiva = null;
@@ -458,22 +472,22 @@ public class HotelManagerE {
             throw new DatosInvalidosException("No se encontró ocupación activa para la habitación " + idHabitacionActual);
         }
 
-        Habitacion habitacionNueva = gestorHabitaciones.buscarPorId(idHabitacionActual);
+        Habitacion habitacionNueva = gestorHabitaciones.buscarPorId(idHabitacionNueva);
         if (habitacionNueva == null) {
             throw new DatosInvalidosException("Habitación nueva no encontrada (Nro: " + idHabitacionNueva  +")");
         }
 
         if (!habitacionNueva.estaDisponible()) {
-            throw new HabitacionNoDisponibleException(
-                    "La habitación " + idHabitacionActual + " no está disponible.");
+            throw new HabitacionNoDisponibleException("La habitación " + idHabitacionNueva + " no está disponible.");
         }
 
         habitacionActual.setEstadoHabitacion(EstadoHabitacion.LIBRE, "");
         habitacionNueva.setEstadoHabitacion(EstadoHabitacion.OCUPADO, "");
         ocupacionActiva.cambiarHabitacion(habitacionNueva);
 
-        gestorOcupaciones.guardarEnArchivo();
+
         gestorHabitaciones.guardarEnArchivo();
+        gestorOcupaciones.guardarEnArchivo();
         System.out.println("Cambio de habitación exitoso");
     }
 
@@ -489,48 +503,37 @@ public class HotelManagerE {
 
         System.out.println("Ocupaciones Registradas: ");
         for (Ocupacion ocupacion : ocupaciones) {
+            System.out.println("-------------------");
             System.out.println("ID: "+ ocupacion.getId());
-            System.out.println("Pasajero: "+ ocupacion.getPasajero().toString() + "\n");
-            System.out.println("Habitacion: "+ ocupacion.getHabitacion().toString() + "\n");
-            System.out.println("Duracion: "+ ocupacion.getDuracion() + "\n");
-            System.out.println("Monto total pagado "+ ocupacion.calcularTotal() + "\n");
+            System.out.println("Pasajero DNI: "+ ocupacion.getPasajero().getDni() + " Nombre: " + ocupacion.getPasajero().getNombre());
+            System.out.println("Habitacion ID: "+ ocupacion.getHabitacion().getId() + " Num: " + ocupacion.getHabitacion().getNumero());
+            System.out.println("Monto total pagado "+ ocupacion.calcularTotal());
+            System.out.println("-------------------");
         }
 
     }
 
 
-// Pide un nombre y fecha de check-in para comparar con las ocupaciones cargadas, y si hay un match te imprime los datos;
-    public void buscarOcupacion(int id) throws SeguridadException, OcupacionNoEncontradaException {
+
+    public void buscarOcupacion(int id) throws SeguridadException{
 
         checkRecepcionista();
 
-        List<Ocupacion> ocupaciones = gestorOcupaciones.listarTodos();
+        Ocupacion ocupacion = gestorOcupaciones.buscarPorId(id);
 
-        if (ocupaciones.isEmpty()) {
-            System.out.println("No hay ocupaciones registradas.");
+        if (ocupacion == null) {
+            System.out.println("No hay ocupacion registrada con ID: "+ id);
             return;
         }
 
-        for (Ocupacion ocupacion : ocupaciones) {
-
-            if (ocupacion.getId() == id){
-
-                System.out.println("ID: "+ ocupacion.getId() + "\n");
-                System.out.println("Pasajero: "+ ocupacion.getPasajero().toString() + "\n");
-                System.out.println("Habitacion: "+ ocupacion.getHabitacion().toString() + "\n");
-                System.out.println("Duracion: "+ ocupacion.getDuracion() + "\n");
-                System.out.println("Monto total pagado "+ ocupacion.calcularTotal() + "\n");
-
-            } else {
-
-                throw new OcupacionNoEncontradaException("No hay reserva con la ID ingresada. \n");
-
-
-            }
+        System.out.println("Informacion de ocupacion: ");
+        System.out.println("ID: " + ocupacion.getId());
+        System.out.println("Pasajero DNI: " + ocupacion.getPasajero().getDni() + " Nombre: " + ocupacion.getPasajero().getNombre());
+        System.out.println("Habitacion ID: " + ocupacion.getHabitacion().getId() + " Num: " + ocupacion.getHabitacion().getNumero());
+        System.out.println("Monto total pagado: " + ocupacion.calcularTotal());
 
         }
 
-    }
 
     public void guardarDatosRecepcionista() throws SeguridadException {
         checkRecepcionista(); // PERMISO PARA RECEPCIONISTA
@@ -553,12 +556,13 @@ public class HotelManagerE {
         }
 
         EstadoHabitacion estadoAnterior = habitacion.getEstadoHabitacion();
-
-        if (estadoAnterior == EstadoHabitacion.OCUPADO &&
-                nuevoEstado != EstadoHabitacion.LIBRE) {
+        if (estadoAnterior == EstadoHabitacion.RESERVADO){
+            throw new DatosInvalidosException("No puede cambiar el estado de una habitación reservada.");
+        }
+        if (estadoAnterior == EstadoHabitacion.OCUPADO) {
             throw new DatosInvalidosException(
                     "No puede cambiar el estado de una habitación ocupada. " +
-                            "Primero debe realizar el Check-Out."
+                            "Primero debe realizar el Check-Out o el cambio de habitacion en la ocupacion."
             );
         }
 
@@ -624,6 +628,36 @@ public class HotelManagerE {
         return true;
     }
 
+    public void listarHabitaciones() throws SeguridadException {
+        checkRecepcionista();
+
+        List<Habitacion> habitaciones = gestorHabitaciones.listarTodos();
+
+        if (habitaciones.isEmpty()) {
+            System.out.println("No hay habitaciones registradas en el sistema.");
+            return;
+        }
+
+        System.out.println("Habitaciones registradas: ");
+        for (Habitacion h : habitaciones) {
+            System.out.println("-------------------");
+            System.out.println("ID: " + h.getId());
+            System.out.println("Número: " + h.getNumero());
+            System.out.println("Tipo: " + h.getTipoHabitacion().getDescripcion());
+            System.out.println("Piso: " + h.getPiso());
+            System.out.println("Capacidad: " + h.getCapacidad() + " personas");
+            System.out.println("Precio por noche: $" + h.getPrecioPorNoche());
+            System.out.println("Estado: " + h.getEstadoHabitacion().getDescripcion());
+            if (!h.getMotivoNoDisponible().isEmpty()) {
+                System.out.println("Motivo: " + h.getMotivoNoDisponible());
+            }
+            System.out.println("-------------------");
+        }
+
+
+    }
+
+
     // Métodos de Admin
     public void crearUsuario(String nombre, String apellido, int numeroCell, int dni, int direccion, String mail, String username, String password, boolean activo, TipoUsuario tipo)
             throws SeguridadException, DatosInvalidosException {
@@ -638,6 +672,14 @@ public class HotelManagerE {
             throw new DatosInvalidosException("Los campos obligatorios (nombre, apellido, username, password) no pueden estar vacíos.");
         }
 
+        if (!nombre.matches("[a-zA-ZáéíóúÁÉÍÓÚñÑ\\s]+")) {
+            throw new DatosInvalidosException("El nombre no puede contener números o caracteres especiales.");
+        }
+
+        if (!apellido.matches("[a-zA-ZáéíóúÁÉÍÓÚñÑ\\s]+")) {
+            throw new DatosInvalidosException("El apellido no puede contener números o caracteres especiales.");
+        }
+
         if (dni <= 0) {
             throw new DatosInvalidosException("DNI inválido.");
         }
@@ -645,8 +687,12 @@ public class HotelManagerE {
             throw new DatosInvalidosException("Debe especificar un tipo de usuario válido (ADMINISTRADOR o RECEPCIONISTA).");
         }
 
-        if (mail == null || mail.trim().isEmpty() || !mail.contains("@")) {
+        if (mail == null || mail.trim().isEmpty()) {
             throw new DatosInvalidosException("Email inválido.");
+        }
+
+        if (!mail.matches("^[\\w.-]+@[\\w.-]+\\.[a-zA-Z]{2,}$")) {
+            throw new DatosInvalidosException("Email inválido. Debe tener formato: usuario@mail.com");
         }
 
         if (gestorUsuarios.existeUsuarioConUsername(username)) {
@@ -659,7 +705,7 @@ public class HotelManagerE {
         }
 
         // crea usuario segun su tipo
-        Usuario nuevoUsuario = null;
+        Usuario nuevoUsuario;
         if (tipo == TipoUsuario.ADMINISTRADOR) {
              nuevoUsuario = new Administrador(nombre, apellido, numeroCell, dni, direccion, mail, username, password, activo);
         } else if (tipo == TipoUsuario.RECEPCIONISTA) {
