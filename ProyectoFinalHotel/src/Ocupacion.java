@@ -152,6 +152,10 @@ public class Ocupacion implements Guardable {
         return (int) ChronoUnit.DAYS.between(fechaCheckIn, fin);
     }
 
+    public void cambiarHabitacion(Habitacion nuevaHabitacion) {
+        this.habitacion = nuevaHabitacion;
+    }
+
     public double calcularTotal() {
         int noches = getDuracion();
         if (noches <= 0) {

@@ -429,6 +429,52 @@ public class HotelManagerE {
         return reserva;
     }
 
+    public void cambiarHabitacionOcupacion(int idHabitacionActual, int idHabitacionNueva)
+            throws DatosInvalidosException, HabitacionNoDisponibleException, SeguridadException {
+
+        checkRecepcionista(); // PERMISO PARA RECEPCIONISTA
+
+        Habitacion habitacionActual = gestorHabitaciones.buscarPorId(idHabitacionActual);
+        if (habitacionActual == null) {
+            throw new DatosInvalidosException("Habitación actual no encontrada (ID: " + idHabitacionNueva + ")");
+        }
+
+        if (habitacionActual.getEstadoHabitacion() != EstadoHabitacion.OCUPADO) {
+            throw new DatosInvalidosException("La habitación " + idHabitacionNueva + " no está ocupada actualmente.");
+        }
+
+        Ocupacion ocupacionActiva = null;
+        List<Ocupacion> ocupaciones = gestorOcupaciones.listarTodos();
+        for (Ocupacion o : ocupaciones) {
+            if (o.getHabitacion().getId() == habitacionActual.getId() && o.verificarActiva()) {
+                ocupacionActiva = o;
+                break;
+            }
+        }
+
+        if (ocupacionActiva == null) {
+            throw new DatosInvalidosException("No se encontró ocupación activa para la habitación " + idHabitacionActual);
+        }
+
+        Habitacion habitacionNueva = gestorHabitaciones.buscarPorId(idHabitacionActual);
+        if (habitacionNueva == null) {
+            throw new DatosInvalidosException("Habitación nueva no encontrada (Nro: " + idHabitacionNueva  +")");
+        }
+
+        if (!habitacionNueva.estaDisponible()) {
+            throw new HabitacionNoDisponibleException(
+                    "La habitación " + idHabitacionActual + " no está disponible.");
+        }
+
+        habitacionActual.setEstadoHabitacion(EstadoHabitacion.LIBRE, "");
+        habitacionNueva.setEstadoHabitacion(EstadoHabitacion.OCUPADO, "");
+        ocupacionActiva.cambiarHabitacion(habitacionNueva);
+
+        gestorOcupaciones.guardarEnArchivo();
+        gestorHabitaciones.guardarEnArchivo();
+        System.out.println("Cambio de habitación exitoso");
+    }
+
     public void guardarDatosRecepcionista() throws SeguridadException {
         checkRecepcionista(); // PERMISO PARA RECEPCIONISTA
 
