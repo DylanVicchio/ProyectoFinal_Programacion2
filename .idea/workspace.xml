@@ -5,9 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="27fd514a-e8fd-49ab-9da6-ff3dedbd656a" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/ProyectoFinalHotel/src/Exception/OcupacionNoEncontradaException.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ProyectoFinalHotel/src/HotelManagerE.java" beforeDir="false" afterPath="$PROJECT_DIR$/ProyectoFinalHotel/src/HotelManagerE.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ProyectoFinalHotel/src/Ocupacion.java" beforeDir="false" afterPath="$PROJECT_DIR$/ProyectoFinalHotel/src/Ocupacion.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ProyectoFinalHotel/src/Pasajero.java" beforeDir="false" afterPath="$PROJECT_DIR$/ProyectoFinalHotel/src/Pasajero.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -17,9 +18,9 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="Exception" />
         <option value="Interface" />
         <option value="Class" />
+        <option value="Exception" />
       </list>
     </option>
   </component>

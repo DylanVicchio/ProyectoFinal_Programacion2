@@ -2,6 +2,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import Enum.EstadoHabitacion;
@@ -12,6 +13,7 @@ import Exception.HabitacionNoDisponibleException;
 import Exception.ReservaInvalidaException;
 import Exception.SeguridadException;
 import Enum.TipoHabitacion;
+import Exception.OcupacionNoEncontradaException;
 
 
 public class HotelManagerE {
@@ -473,6 +475,61 @@ public class HotelManagerE {
         gestorOcupaciones.guardarEnArchivo();
         gestorHabitaciones.guardarEnArchivo();
         System.out.println("Cambio de habitación exitoso");
+    }
+
+    public void listarOcupaciones() throws SeguridadException {
+        checkRecepcionista();
+
+        List<Ocupacion> ocupaciones = gestorOcupaciones.listarTodos();
+
+        if (ocupaciones.isEmpty()) {
+            System.out.println("No hay ocupaciones registradas.");
+            return;
+        }
+
+        System.out.println("Ocupaciones Registradas: ");
+        for (Ocupacion ocupacion : ocupaciones) {
+            System.out.println("ID: "+ ocupacion.getId());
+            System.out.println("Pasajero: "+ ocupacion.getPasajero().toString() + "\n");
+            System.out.println("Habitacion: "+ ocupacion.getHabitacion().toString() + "\n");
+            System.out.println("Duracion: "+ ocupacion.getDuracion() + "\n");
+            System.out.println("Monto total pagado "+ ocupacion.calcularTotal() + "\n");
+        }
+
+    }
+
+
+// Pide un nombre y fecha de check-in para comparar con las ocupaciones cargadas, y si hay un match te imprime los datos;
+    public void buscarOcupacion(int id) throws SeguridadException, OcupacionNoEncontradaException {
+
+        checkRecepcionista();
+
+        List<Ocupacion> ocupaciones = gestorOcupaciones.listarTodos();
+
+        if (ocupaciones.isEmpty()) {
+            System.out.println("No hay ocupaciones registradas.");
+            return;
+        }
+
+        for (Ocupacion ocupacion : ocupaciones) {
+
+            if (ocupacion.getId() == id){
+
+                System.out.println("ID: "+ ocupacion.getId() + "\n");
+                System.out.println("Pasajero: "+ ocupacion.getPasajero().toString() + "\n");
+                System.out.println("Habitacion: "+ ocupacion.getHabitacion().toString() + "\n");
+                System.out.println("Duracion: "+ ocupacion.getDuracion() + "\n");
+                System.out.println("Monto total pagado "+ ocupacion.calcularTotal() + "\n");
+
+            } else {
+
+                throw new OcupacionNoEncontradaException("No hay reserva con la ID ingresada. \n");
+
+
+            }
+
+        }
+
     }
 
     public void guardarDatosRecepcionista() throws SeguridadException {

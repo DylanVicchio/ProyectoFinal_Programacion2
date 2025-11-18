@@ -98,7 +98,6 @@ public class Pasajero extends Persona implements Guardable {
                 "dni=" + getDni() +
                 ", nombre='" + getNombre() + " " + getApellido() + '\'' +
                 ", origen='" + origen + '\'' +
-                ", totalEstadias=" + historialEstadia.size() +
                 '}';
     }
 }
