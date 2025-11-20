@@ -507,6 +507,12 @@ public class HotelManagerE {
             System.out.println("ID: "+ ocupacion.getId());
             System.out.println("Pasajero DNI: "+ ocupacion.getPasajero().getDni() + " Nombre: " + ocupacion.getPasajero().getNombre());
             System.out.println("Habitacion ID: "+ ocupacion.getHabitacion().getId() + " Num: " + ocupacion.getHabitacion().getNumero());
+            System.out.println("Fecha check in: "+ ocupacion.getFechaCheckIn());
+            if (ocupacion.getFechaCheckOut() != null) {
+                System.out.println("Fecha check out: "+ ocupacion.getFechaCheckOut());
+            }else{
+                System.out.println("Sigue vigente.");
+            }
             System.out.println("Monto total pagado "+ ocupacion.calcularTotal());
             System.out.println("-------------------");
         }
@@ -530,6 +536,12 @@ public class HotelManagerE {
         System.out.println("ID: " + ocupacion.getId());
         System.out.println("Pasajero DNI: " + ocupacion.getPasajero().getDni() + " Nombre: " + ocupacion.getPasajero().getNombre());
         System.out.println("Habitacion ID: " + ocupacion.getHabitacion().getId() + " Num: " + ocupacion.getHabitacion().getNumero());
+        System.out.println("Fecha check in: "+ ocupacion.getFechaCheckIn());
+        if (ocupacion.getFechaCheckOut() != null) {
+            System.out.println("Fecha check out: "+ ocupacion.getFechaCheckOut());
+        }else{
+            System.out.println("Sigue vigente.");
+        }
         System.out.println("Monto total pagado: " + ocupacion.calcularTotal());
 
         }

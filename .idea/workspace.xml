@@ -6,21 +6,12 @@
   <component name="ChangeListManager">
     <list default="true" id="27fd514a-e8fd-49ab-9da6-ff3dedbd656a" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ProyectoFinalHotel/src/Exception/OcupacionNoEncontradaException.java" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/ProyectoFinalHotel/src/HotelManagerE.java" beforeDir="false" afterPath="$PROJECT_DIR$/ProyectoFinalHotel/src/HotelManagerE.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ProyectoFinalHotel/src/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/ProyectoFinalHotel/src/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ProyectoFinalHotel/src/Ocupacion.java" beforeDir="false" afterPath="$PROJECT_DIR$/ProyectoFinalHotel/src/Ocupacion.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/habitaciones.json" beforeDir="false" afterPath="$PROJECT_DIR$/habitaciones.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ocupaciones.json" beforeDir="false" afterPath="$PROJECT_DIR$/ocupaciones.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/ProyectoFinal_Programacion2/Enum/EstadoReserva.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/ProyectoFinal_Programacion2/Enum/EstadoReserva.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/ProyectoFinal_Programacion2/GestorHotel.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/ProyectoFinal_Programacion2/GestorHotel.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/ProyectoFinal_Programacion2/HotelManagerE$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/ProyectoFinal_Programacion2/HotelManagerE$1.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/ProyectoFinal_Programacion2/HotelManagerE.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/ProyectoFinal_Programacion2/HotelManagerE.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/ProyectoFinal_Programacion2/Ocupacion.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/ProyectoFinal_Programacion2/Ocupacion.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/ProyectoFinal_Programacion2/Reserva.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/ProyectoFinal_Programacion2/Reserva.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pasajeros.json" beforeDir="false" afterPath="$PROJECT_DIR$/pasajeros.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/reservas.json" beforeDir="false" afterPath="$PROJECT_DIR$/reservas.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/usuarios.json" beforeDir="false" afterPath="$PROJECT_DIR$/usuarios.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

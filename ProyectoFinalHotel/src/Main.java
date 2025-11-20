@@ -190,6 +190,7 @@ public class Main {
                         System.out.print("Ingrese ID Habitación: ");
                         int habID = Integer.parseInt(scanner.nextLine());
                         manager.listarConsumosDeOcupacion(habID);
+                        break;
                     case "6":
                         System.out.println("\nREGISTRAR NUEVO PASAJERO");
                         System.out.print("Nombre: ");
